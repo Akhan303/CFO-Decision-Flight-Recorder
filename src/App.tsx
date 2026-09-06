@@ -45,6 +45,23 @@ const scenarios = scenariosJson as Scenario[];
 const contextRows = contextJson as ContextMetric[];
 
 const COLORS = ["#43d8ff", "#7b61ff", "#36d399", "#ffb84d", "#ff6b7a", "#77a6ff"];
+
+const TOOLTIP_STYLE = {
+  backgroundColor: "#0e1a30",
+  border: "1px solid #35506f",
+  borderRadius: "8px",
+  color: "#f8fafc",
+  boxShadow: "0 8px 24px rgba(0,0,0,0.35)"
+};
+
+const TOOLTIP_LABEL_STYLE = {
+  color: "#f8fafc",
+  fontWeight: 600
+};
+
+const TOOLTIP_ITEM_STYLE = {
+  color: "#f8fafc"
+};
 const DEFAULT_DECISION = decisions[0].decisionId;
 
 const stateTone: Record<string, string> = {
@@ -286,7 +303,11 @@ function CommandCenter() {
                 <CartesianGrid stroke="#21314d" horizontal={false} />
                 <XAxis type="number" allowDecimals={false} stroke="#8292ac" />
                 <YAxis type="category" dataKey="name" width={105} stroke="#8292ac" tick={{ fontSize: 11 }} />
-                <Tooltip contentStyle={{ background: "#0e1a30", border: "1px solid #2d4164" }} />
+                <Tooltip
+                  contentStyle={TOOLTIP_STYLE}
+                  labelStyle={TOOLTIP_LABEL_STYLE}
+                  itemStyle={TOOLTIP_ITEM_STYLE}
+                />
                 <Bar dataKey="value" fill="#43d8ff" radius={[0, 5, 5, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -300,7 +321,11 @@ function CommandCenter() {
                 <CartesianGrid stroke="#21314d" vertical={false} />
                 <XAxis dataKey="name" stroke="#8292ac" tick={{ fontSize: 11 }} />
                 <YAxis allowDecimals={false} stroke="#8292ac" />
-                <Tooltip contentStyle={{ background: "#0e1a30", border: "1px solid #2d4164" }} />
+                <Tooltip
+                  contentStyle={TOOLTIP_STYLE}
+                  labelStyle={TOOLTIP_LABEL_STYLE}
+                  itemStyle={TOOLTIP_ITEM_STYLE}
+                />
                 <Bar dataKey="value" radius={[5, 5, 0, 0]}>
                   {unitMix.map((_, index) => <Cell key={index} fill={COLORS[index]} />)}
                 </Bar>
@@ -316,7 +341,11 @@ function CommandCenter() {
                 <Pie data={stateMix} dataKey="value" nameKey="name" innerRadius={54} outerRadius={88} paddingAngle={3}>
                   {stateMix.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
                 </Pie>
-                <Tooltip contentStyle={{ background: "#0e1a30", border: "1px solid #2d4164" }} />
+                <Tooltip
+                  contentStyle={TOOLTIP_STYLE}
+                  labelStyle={TOOLTIP_LABEL_STYLE}
+                  itemStyle={TOOLTIP_ITEM_STYLE}
+                />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
               </PieChart>
             </ResponsiveContainer>
@@ -346,7 +375,9 @@ function CommandCenter() {
                 <ZAxis type="number" dataKey="confidence" range={[90, 480]} />
                 <Tooltip
                   cursor={{ strokeDasharray: "3 3" }}
-                  contentStyle={{ background: "#0e1a30", border: "1px solid #2d4164" }}
+                  contentStyle={TOOLTIP_STYLE}
+                  labelStyle={TOOLTIP_LABEL_STYLE}
+                  itemStyle={TOOLTIP_ITEM_STYLE}
                 />
                 <Scatter data={scatter} fill="#7b61ff" />
               </ScatterChart>
@@ -599,7 +630,11 @@ function ContextPage() {
                       <CartesianGrid stroke="#21314d" vertical={false} />
                       <XAxis dataKey="metric" stroke="#8292ac" />
                       <YAxis stroke="#8292ac" />
-                      <Tooltip contentStyle={{ background: "#0e1a30", border: "1px solid #2d4164" }} />
+                      <Tooltip
+                  contentStyle={TOOLTIP_STYLE}
+                  labelStyle={TOOLTIP_LABEL_STYLE}
+                  itemStyle={TOOLTIP_ITEM_STYLE}
+                />
                       <Legend />
                       <Bar dataKey="first" name="Decision-Time Snapshot" fill="#43d8ff" radius={[4, 4, 0, 0]} />
                       <Bar dataKey="second" name="Comparison Snapshot" fill="#7b61ff" radius={[4, 4, 0, 0]} />
@@ -874,7 +909,11 @@ function ScenarioPage() {
                     <CartesianGrid stroke="#21314d" vertical={false} />
                     <XAxis dataKey="scenarioName" stroke="#8292ac" />
                     <YAxis domain={[0, 1]} stroke="#8292ac" />
-                    <Tooltip contentStyle={{ background: "#0e1a30", border: "1px solid #2d4164" }} />
+                    <Tooltip
+                  contentStyle={TOOLTIP_STYLE}
+                  labelStyle={TOOLTIP_LABEL_STYLE}
+                  itemStyle={TOOLTIP_ITEM_STYLE}
+                />
                     <Legend />
                     <ReferenceLine y={decision.compositeScore} stroke="#ffb84d" strokeDasharray="5 5" />
                     <Bar dataKey="scenarioScore" name="Scenario score" radius={[7, 7, 0, 0]}>
