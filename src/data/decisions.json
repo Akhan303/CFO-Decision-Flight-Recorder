@@ -1,0 +1,362 @@
+[
+  {
+    "decisionId": "D-2026-031",
+    "decisionTitle": "Selective 4% price increase on motion-control portfolio",
+    "decisionType": "Pricing",
+    "businessUnit": "BU-MOTION",
+    "decisionDate": "2026-01-20",
+    "lifecycleState": "Closed",
+    "recommendationLabel": "AI Recommendation (v1) · Score 0.692",
+    "recommendedAction": "Approve targeted action",
+    "compositeScore": 0.692,
+    "confidencePercent": "32.5%",
+    "expectedEbitdaUsd": 13690000,
+    "downsideEbitdaUsd": -1280000,
+    "escalationTier": "CFO Review",
+    "whySummary": "AI analysis recommends approving the targeted pricing action for the motion-control portfolio. Composite governance score 0.692 with 32.5% confidence. Expected EBITDA impact $13.7M; downside exposure -$1.3M. CFO review is required due to materiality threshold.",
+    "outcomeStatus": "Realized",
+    "outcomeDate": "2026-05-20",
+    "outcomeVarianceMRef": -5.3,
+    "isReleasedByClock": true,
+    "eventCount": 9,
+    "escalationCount": 0,
+    "contextMetricCount": 20,
+    "contextSources": [
+      "CFO Performance Monthly",
+      "External Market Signals"
+    ],
+    "contextDateRange": [
+      "2026-01-15",
+      "2026-01-15"
+    ],
+    "alternatives": [
+      {
+        "label": "Approve targeted action",
+        "source": "AI Recommended",
+        "isRecommended": true,
+        "economics": "Governed"
+      },
+      {
+        "label": "Maintain status quo (no action)",
+        "source": "Baseline Status Quo",
+        "isRecommended": false,
+        "economics": "Not available"
+      }
+    ]
+  },
+  {
+    "decisionId": "D-2026-032",
+    "decisionTitle": "Strategic semiconductor inventory pre-buy",
+    "decisionType": "Inventory",
+    "businessUnit": "BU-AUTO",
+    "decisionDate": "2026-02-01",
+    "lifecycleState": "Executed",
+    "recommendationLabel": "AI Recommendation (v1) · Score 0.571",
+    "recommendedAction": "Approve targeted action",
+    "compositeScore": 0.571,
+    "confidencePercent": "47.7%",
+    "expectedEbitdaUsd": 6820000,
+    "downsideEbitdaUsd": -1200000,
+    "escalationTier": "Management Review",
+    "whySummary": "AI analysis recommends approving the targeted inventory pre-buy for the automation division. Composite governance score 0.571 with 47.7% confidence. Expected EBITDA impact $6.8M; downside exposure -$1.2M. Management review required.",
+    "outcomeStatus": "Projected",
+    "outcomeDate": "2026-06-01",
+    "outcomeVarianceMRef": -3.86,
+    "isReleasedByClock": false,
+    "eventCount": 7,
+    "escalationCount": 0,
+    "contextMetricCount": 20,
+    "contextSources": [
+      "CFO Performance Monthly",
+      "External Market Signals"
+    ],
+    "contextDateRange": [
+      "2026-02-01",
+      "2026-02-01"
+    ],
+    "alternatives": [
+      {
+        "label": "Approve targeted action",
+        "source": "AI Recommended",
+        "isRecommended": true,
+        "economics": "Governed"
+      },
+      {
+        "label": "Maintain status quo (no action)",
+        "source": "Baseline Status Quo",
+        "isRecommended": false,
+        "economics": "Not available"
+      }
+    ]
+  },
+  {
+    "decisionId": "D-2026-033",
+    "decisionTitle": "Tighten distributor payment terms to net-45",
+    "decisionType": "Working Capital",
+    "businessUnit": "BU-AUTO",
+    "decisionDate": "2026-02-13",
+    "lifecycleState": "Closed",
+    "recommendationLabel": "AI Recommendation (v1) · Score 0.461",
+    "recommendedAction": "Proceed with guardrails",
+    "compositeScore": 0.461,
+    "confidencePercent": "49.6%",
+    "expectedEbitdaUsd": 4050000,
+    "downsideEbitdaUsd": -6030000,
+    "escalationTier": "Critical Escalated",
+    "whySummary": "AI analysis recommends proceeding with guardrails for working capital optimization. Composite governance score 0.461 with 49.6% confidence. Expected EBITDA impact $4.1M; downside exposure -$6.0M. Critical escalation tier triggered.",
+    "outcomeStatus": "Realized",
+    "outcomeDate": "2026-06-13",
+    "outcomeVarianceMRef": -1.29,
+    "isReleasedByClock": true,
+    "eventCount": 9,
+    "escalationCount": 0,
+    "contextMetricCount": 20,
+    "contextSources": [
+      "CFO Performance Monthly",
+      "External Market Signals"
+    ],
+    "contextDateRange": [
+      "2026-02-13",
+      "2026-02-13"
+    ],
+    "alternatives": [
+      {
+        "label": "Proceed with guardrails",
+        "source": "AI Recommended",
+        "isRecommended": true,
+        "economics": "Governed"
+      },
+      {
+        "label": "Maintain status quo (no action)",
+        "source": "Baseline Status Quo",
+        "isRecommended": false,
+        "economics": "Not available"
+      }
+    ]
+  },
+  {
+    "decisionId": "D-2026-034",
+    "decisionTitle": "Dual-source critical servo components",
+    "decisionType": "Sourcing",
+    "businessUnit": "BU-MOTION",
+    "decisionDate": "2026-02-25",
+    "lifecycleState": "Closed",
+    "recommendationLabel": "AI Recommendation (v1) · Score 0.624",
+    "recommendedAction": "Stage implementation",
+    "compositeScore": 0.624,
+    "confidencePercent": "60.9%",
+    "expectedEbitdaUsd": 8090000,
+    "downsideEbitdaUsd": -2160000,
+    "escalationTier": "Management Review",
+    "whySummary": "AI analysis recommends staging implementation for the servo component dual-sourcing initiative. Composite governance score 0.624 with 60.9% confidence. Expected EBITDA impact $8.1M; downside exposure -$2.2M. Management review required. Decision was escalated to CFO for additional oversight due to supply chain criticality.",
+    "outcomeStatus": "Realized",
+    "outcomeDate": "2026-06-25",
+    "outcomeVarianceMRef": -5.39,
+    "isReleasedByClock": true,
+    "eventCount": 11,
+    "escalationCount": 1,
+    "contextMetricCount": 20,
+    "contextSources": [
+      "CFO Performance Monthly",
+      "External Market Signals"
+    ],
+    "contextDateRange": [
+      "2026-02-25",
+      "2026-02-25"
+    ],
+    "alternatives": [
+      {
+        "label": "Stage implementation",
+        "source": "AI Recommended",
+        "isRecommended": true,
+        "economics": "Governed"
+      },
+      {
+        "label": "Maintain status quo (no action)",
+        "source": "Baseline Status Quo",
+        "isRecommended": false,
+        "economics": "Not available"
+      }
+    ]
+  },
+  {
+    "decisionId": "D-2026-035",
+    "decisionTitle": "Add automated test capacity in Austin",
+    "decisionType": "Capex",
+    "businessUnit": "BU-SMART",
+    "decisionDate": "2026-03-09",
+    "lifecycleState": "Outcome Pending",
+    "recommendationLabel": "AI Recommendation (v1) · Score 0.485",
+    "recommendedAction": "Hold and gather evidence",
+    "compositeScore": 0.485,
+    "confidencePercent": "66.7%",
+    "expectedEbitdaUsd": 5420000,
+    "downsideEbitdaUsd": -5450000,
+    "escalationTier": "CFO Review",
+    "whySummary": "AI analysis recommends holding and gathering additional evidence before committing to the Austin capacity expansion. Composite governance score 0.485 with 66.7% confidence. Expected EBITDA impact $5.4M; downside exposure -$5.5M. CFO review required.",
+    "outcomeStatus": "Projected",
+    "outcomeDate": "2026-07-07",
+    "outcomeVarianceMRef": -3.5,
+    "isReleasedByClock": false,
+    "eventCount": 8,
+    "escalationCount": 0,
+    "contextMetricCount": 20,
+    "contextSources": [
+      "CFO Performance Monthly",
+      "External Market Signals"
+    ],
+    "contextDateRange": [
+      "2026-03-09",
+      "2026-03-09"
+    ],
+    "alternatives": [
+      {
+        "label": "Hold and gather evidence",
+        "source": "AI Recommended",
+        "isRecommended": true,
+        "economics": "Governed"
+      },
+      {
+        "label": "Maintain status quo (no action)",
+        "source": "Baseline Status Quo",
+        "isRecommended": false,
+        "economics": "Not available"
+      }
+    ]
+  },
+  {
+    "decisionId": "D-2026-038",
+    "decisionTitle": "Extend terms for strategic OEM account",
+    "decisionType": "Credit",
+    "businessUnit": "BU-MOTION",
+    "decisionDate": "2026-04-14",
+    "lifecycleState": "Escalated",
+    "recommendationLabel": "AI Recommendation (v1) · Score 0.587",
+    "recommendedAction": "Reject broad action; use targeted approach",
+    "compositeScore": 0.587,
+    "confidencePercent": "60.8%",
+    "expectedEbitdaUsd": 4430000,
+    "downsideEbitdaUsd": -1890000,
+    "escalationTier": "Monitor",
+    "whySummary": "AI analysis recommends rejecting the broad terms extension and instead using a targeted approach for the strategic OEM account. Composite governance score 0.587 with 60.8% confidence. Expected EBITDA impact $4.4M; downside exposure -$1.9M. Decision has been escalated for CFO review.",
+    "outcomeStatus": "Projected",
+    "outcomeDate": "2026-08-12",
+    "outcomeVarianceMRef": -2.85,
+    "isReleasedByClock": false,
+    "eventCount": 6,
+    "escalationCount": 1,
+    "contextMetricCount": 20,
+    "contextSources": [
+      "CFO Performance Monthly",
+      "External Market Signals"
+    ],
+    "contextDateRange": [
+      "2026-04-14",
+      "2026-04-14"
+    ],
+    "alternatives": [
+      {
+        "label": "Reject broad action; use targeted approach",
+        "source": "AI Recommended",
+        "isRecommended": true,
+        "economics": "Governed"
+      },
+      {
+        "label": "Maintain status quo (no action)",
+        "source": "Baseline Status Quo",
+        "isRecommended": false,
+        "economics": "Not available"
+      }
+    ]
+  },
+  {
+    "decisionId": "D-2026-039",
+    "decisionTitle": "Shift electronics assembly mix to Europe",
+    "decisionType": "Sourcing",
+    "businessUnit": "BU-AUTO",
+    "decisionDate": "2026-04-26",
+    "lifecycleState": "Execution Pending",
+    "recommendationLabel": "AI Recommendation (v1) · Score 0.649",
+    "recommendedAction": "Hold and gather evidence",
+    "compositeScore": 0.649,
+    "confidencePercent": "59.3%",
+    "expectedEbitdaUsd": 13960000,
+    "downsideEbitdaUsd": -6710000,
+    "escalationTier": "Critical Escalated",
+    "whySummary": "AI analysis recommends holding and gathering additional evidence before shifting the assembly mix. Composite governance score 0.649 with 59.3% confidence. Expected EBITDA impact $14.0M; downside exposure -$6.7M. Critical escalation tier triggered.",
+    "outcomeStatus": "Projected",
+    "outcomeDate": "2026-08-24",
+    "outcomeVarianceMRef": -3.96,
+    "isReleasedByClock": false,
+    "eventCount": 6,
+    "escalationCount": 0,
+    "contextMetricCount": 20,
+    "contextSources": [
+      "CFO Performance Monthly",
+      "External Market Signals"
+    ],
+    "contextDateRange": [
+      "2026-04-26",
+      "2026-04-26"
+    ],
+    "alternatives": [
+      {
+        "label": "Hold and gather evidence",
+        "source": "AI Recommended",
+        "isRecommended": true,
+        "economics": "Governed"
+      },
+      {
+        "label": "Maintain status quo (no action)",
+        "source": "Baseline Status Quo",
+        "isRecommended": false,
+        "economics": "Not available"
+      }
+    ]
+  },
+  {
+    "decisionId": "D-2026-041",
+    "decisionTitle": "Defer robotics tooling cell expansion",
+    "decisionType": "Capex",
+    "businessUnit": "BU-SMART",
+    "decisionDate": "2026-05-20",
+    "lifecycleState": "Approved",
+    "recommendationLabel": "AI Recommendation (v1) · Score 0.507",
+    "recommendedAction": "Proceed with segmented rollout",
+    "compositeScore": 0.507,
+    "confidencePercent": "60.6%",
+    "expectedEbitdaUsd": 5580000,
+    "downsideEbitdaUsd": -3680000,
+    "escalationTier": "Management Review",
+    "whySummary": "AI analysis recommends proceeding with a segmented rollout for the robotics tooling expansion deferral. Composite governance score 0.507 with 60.6% confidence. Expected EBITDA impact $5.6M; downside exposure -$3.7M. Management review required.",
+    "outcomeStatus": "Projected",
+    "outcomeDate": "2026-09-17",
+    "outcomeVarianceMRef": -1.67,
+    "isReleasedByClock": false,
+    "eventCount": 5,
+    "escalationCount": 0,
+    "contextMetricCount": 20,
+    "contextSources": [
+      "CFO Performance Monthly",
+      "External Market Signals"
+    ],
+    "contextDateRange": [
+      "2026-05-20",
+      "2026-05-20"
+    ],
+    "alternatives": [
+      {
+        "label": "Proceed with segmented rollout",
+        "source": "AI Recommended",
+        "isRecommended": true,
+        "economics": "Governed"
+      },
+      {
+        "label": "Maintain status quo (no action)",
+        "source": "Baseline Status Quo",
+        "isRecommended": false,
+        "economics": "Not available"
+      }
+    ]
+  }
+]
