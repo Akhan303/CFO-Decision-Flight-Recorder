@@ -1,0 +1,44 @@
+{
+  "product": "CFO Decision Flight Recorder — Public Showcase",
+  "releaseVersion": "1.0.0",
+  "financeModelVersion": "FIN-SCENARIO-v1",
+  "generatedAtUtc": "2026-09-08T13:14:15.050Z",
+  "distribution": {
+    "sourceMaps": false,
+    "minified": true,
+    "runtimeConnectivity": "None — self-contained static demonstration",
+    "dataClassification": "Synthetic Arcadia Industrial Automation demonstration data"
+  },
+  "artifacts": [
+    {
+      "path": "arcadia-mark.svg",
+      "bytes": 502,
+      "sha256": "863a2d224eef44ad0808ecb75712690ab19505684a6e017f4b82f4a35ad64776"
+    },
+    {
+      "path": "assets/charts-B4TCOy1e.js",
+      "bytes": 433836,
+      "sha256": "99f5a06041ad419e0c67d8203537f25405f8adff62287aec7269492f5d454586"
+    },
+    {
+      "path": "assets/index-BFQXCP3D.js",
+      "bytes": 106457,
+      "sha256": "43ef901f656b7c9a729a84323f19ff0136739b617ff1b8fe32e1147328d9dca3"
+    },
+    {
+      "path": "assets/index-XxHVyuiS.css",
+      "bytes": 22949,
+      "sha256": "38f8dcc0680847169fbba3aca3597f5f7e9875cdcfb7ba9b59a661382560c1d2"
+    },
+    {
+      "path": "assets/react-vendor-4E2OGFNZ.js",
+      "bytes": 164728,
+      "sha256": "8f9693560fe1724f1f216cafd1e434dfcf18dc930bc4aec90d428cfaf47c1b2c"
+    },
+    {
+      "path": "index.html",
+      "bytes": 922,
+      "sha256": "d79c2b47e188815eaf0fbe8ae551dc3617c497428be9507203b7b2e33f2acd9b"
+    }
+  ]
+}
