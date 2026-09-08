@@ -1,0 +1,58 @@
+{
+  "contractVersion": "FDR-PUBLIC-v1",
+  "snapshotDate": "2026-08-20",
+  "authoritativeSystem": "Private Palantir Foundry CFO Decision Flight Recorder",
+  "projection": {
+    "purpose": "Approved synthetic, read-only public portfolio subset",
+    "runtimeConnectionToFoundry": false,
+    "decisionIds": [
+      "D-2026-031",
+      "D-2026-032",
+      "D-2026-033",
+      "D-2026-034",
+      "D-2026-035",
+      "D-2026-038",
+      "D-2026-039",
+      "D-2026-041"
+    ]
+  },
+  "financeModelVersion": "FIN-SCENARIO-v1",
+  "expectedCounts": {
+    "decisions": 8,
+    "events": 61,
+    "context": 160,
+    "scenarios": 24,
+    "actuals": 3
+  },
+  "expectedPortfolioTotalsUsd": {
+    "expectedEbitda": 62040000,
+    "downsideEbitda": -28400000
+  },
+  "outcomeClassification": {
+    "realized": ["D-2026-031", "D-2026-033", "D-2026-034"],
+    "projected": ["D-2026-032", "D-2026-035", "D-2026-038", "D-2026-039", "D-2026-041"]
+  },
+  "requiredSemanticParity": [
+    "decision identity",
+    "lifecycle state",
+    "AI recommendation versus accountable human decision",
+    "expected and downside EBITDA",
+    "scenario assumptions and probabilities",
+    "point-in-time evidence classification",
+    "governance chronology",
+    "outcome release and measurement state"
+  ],
+  "privateOnlyCapabilities": [
+    "Ontology writeback",
+    "Action Types",
+    "governance Functions",
+    "AIP execution and evaluations",
+    "authenticated actor identity",
+    "permissions and markings",
+    "operational resource identifiers"
+  ],
+  "validationLimitations": {
+    "liveMultiPrincipalUat": "Conditional — enrollment has one authenticated user",
+    "simulatedPrincipalTests": "Required for positive and negative separation-of-duties paths"
+  }
+}

@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../src/data/${name}.json`, import.meta.url), "utf8"));
+const semanticContract = JSON.parse(readFileSync(new URL("../release/foundry-public-semantic-contract.json", import.meta.url), "utf8"));
 const decisions = load("decisions");
 const events = load("events");
 const context = load("context");
@@ -10,6 +11,13 @@ const actuals = load("actuals");
 const financePolicy = load("finance-policy");
 const errors = [];
 const warnings = [];
+
+const sameValues = (actual, expected) =>
+  actual.length === expected.length && actual.every((value, index) => value === expected[index]);
+
+if (semanticContract.contractVersion !== "FDR-PUBLIC-v1") errors.push("Unexpected public semantic contract version");
+if (semanticContract.projection.runtimeConnectionToFoundry !== false) errors.push("Public projection contract must prohibit runtime Foundry connectivity");
+if (semanticContract.financeModelVersion !== financePolicy.modelVersion) errors.push("Semantic contract finance model does not match finance policy");
 
 if (financePolicy.modelVersion !== "FIN-SCENARIO-v1") errors.push("Unexpected finance model version");
 if (!financePolicy.owner || !financePolicy.ebitdaFormula || !financePolicy.npvProxyFormula) errors.push("Finance calculation policy is incomplete");
@@ -34,6 +42,33 @@ for (const decision of decisions) {
     errors.push(`${decision.decisionId}: outcome status conflicts with release flag`);
   }
 }
+
+const orderedDecisionIds = decisions.map((decision) => decision.decisionId);
+if (!sameValues(orderedDecisionIds, semanticContract.projection.decisionIds)) {
+  errors.push("Public decision IDs or ordering drifted from the approved Foundry projection contract");
+}
+
+const contractCounts = semanticContract.expectedCounts;
+const actualCounts = {
+  decisions: decisions.length,
+  events: events.length,
+  context: context.length,
+  scenarios: scenarios.length,
+  actuals: actuals.length,
+};
+for (const [name, expected] of Object.entries(contractCounts)) {
+  if (actualCounts[name] !== expected) errors.push(`${name} count ${actualCounts[name]} does not match semantic contract ${expected}`);
+}
+
+const realizedIds = decisions.filter((decision) => decision.outcomeStatus === "Realized").map((decision) => decision.decisionId);
+const projectedIds = decisions.filter((decision) => decision.outcomeStatus === "Projected").map((decision) => decision.decisionId);
+if (!sameValues(realizedIds, semanticContract.outcomeClassification.realized)) errors.push("Realized outcome set drifted from semantic contract");
+if (!sameValues(projectedIds, semanticContract.outcomeClassification.projected)) errors.push("Projected outcome set drifted from semantic contract");
+
+const expectedEbitda = decisions.reduce((sum, decision) => sum + decision.expectedEbitdaUsd, 0);
+const downsideEbitda = decisions.reduce((sum, decision) => sum + decision.downsideEbitdaUsd, 0);
+if (expectedEbitda !== semanticContract.expectedPortfolioTotalsUsd.expectedEbitda) errors.push("Expected EBITDA total drifted from semantic contract");
+if (downsideEbitda !== semanticContract.expectedPortfolioTotalsUsd.downsideEbitda) errors.push("Downside EBITDA total drifted from semantic contract");
 
 const eventsByDecision = by(events, "decisionId");
 const contextByDecision = by(context, "decisionId");
