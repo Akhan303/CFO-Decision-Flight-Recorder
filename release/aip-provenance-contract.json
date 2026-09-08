@@ -1,0 +1,58 @@
+{
+  "contractVersion": "AIP-PROVENANCE-v1",
+  "currentState": {
+    "evidenceStatus": "not-yet-evidenced",
+    "generationMode": "deterministic_scoring",
+    "llmBacked": false,
+    "publicLabel": "Model-derived recommendation",
+    "financeModelVersion": "FIN-SCENARIO-v1"
+  },
+  "claimPolicy": {
+    "allowedUntilUpgrade": [
+      "Model-derived recommendation",
+      "Decision intelligence recommendation",
+      "Precomputed decision-support score"
+    ],
+    "prohibitedUntilUpgrade": [
+      "AI-generated recommendation",
+      "LLM-generated recommendation",
+      "AIP-generated recommendation"
+    ]
+  },
+  "requiredPersistedProvenance": [
+    "recommendationVersionId",
+    "decisionId",
+    "logicVersion",
+    "modelIdentifier",
+    "modelVersion",
+    "promptTemplateVersion",
+    "runId",
+    "generatedAt",
+    "evidenceSnapshotIds",
+    "citations",
+    "confidence",
+    "uncertainties",
+    "outputHash",
+    "evaluationSuiteVersion",
+    "evaluationStatus"
+  ],
+  "upgradeGate": {
+    "minimumEvaluationCases": 12,
+    "singleBatchFirstRelease": true,
+    "requiredCaseFamilies": [
+      "grounded recommendation",
+      "financial numerical fidelity",
+      "citation completeness",
+      "insufficient evidence abstention",
+      "conflicting evidence handling",
+      "human authority boundary"
+    ],
+    "requiredChecks": [
+      "all persisted provenance fields populated",
+      "no unsupported financial facts",
+      "every material claim cites an allowed evidence snapshot",
+      "insufficient evidence produces abstention or explicit uncertainty",
+      "recommendation never performs or impersonates human approval"
+    ]
+  }
+}

@@ -35,7 +35,7 @@
   "requiredSemanticParity": [
     "decision identity",
     "lifecycle state",
-    "AI recommendation versus accountable human decision",
+    "model-derived recommendation versus accountable human decision",
     "expected and downside EBITDA",
     "scenario assumptions and probabilities",
     "point-in-time evidence classification",

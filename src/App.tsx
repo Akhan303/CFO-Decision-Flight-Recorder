@@ -593,7 +593,7 @@ function RecommendationPanel({ decision }: { decision: Decision }) {
   const authority = assessApprovalAuthority(decision, events);
   const disposition = recommendationDisposition(decision.decisionId, events);
   return (
-    <Panel title="Recommendation and accountable decision" eyebrow="AI advice is distinct from human authority" className="recommendation-panel">
+    <Panel title="Recommendation and accountable decision" eyebrow="Model-derived advice is distinct from human authority" className="recommendation-panel">
       <div className="recommendation-layout">
         <div>
           <StatusBadge tone="info">{decision.recommendationLabel}</StatusBadge>
@@ -613,7 +613,7 @@ function RecommendationPanel({ decision }: { decision: Decision }) {
 
       <div className="authority-grid">
         <div>
-          <span>AI recommendation</span>
+          <span>Model-derived recommendation</span>
           <strong>{decision.recommendedAction}</strong>
           <small>Decision support · not autonomous authority</small>
         </div>
@@ -1145,12 +1145,12 @@ function ExecutiveStory({ decision }: { decision: Decision }) {
     },
     {
       kicker: "Frame 2 · Advice and Authority",
-      title: "AI recommendation, accountable human decision",
+      title: "Model-derived recommendation, accountable human decision",
       body: (
         <>
           <p className="story-quote">{decision.whySummary}</p>
           <div className="story-metric-grid">
-            <KpiCard label="AI recommendation" value={decision.recommendedAction} detail="Decision support" />
+            <KpiCard label="Model-derived recommendation" value={decision.recommendedAction} detail="Decision support" />
             <KpiCard label="Approval authority" value={authority.status} detail={`${authority.actualRole ?? "No approver"} / ${authority.requiredRole}`} tone={authority.status === "Satisfied" ? "positive" : "critical"} />
             <KpiCard label="Disposition" value={disposition} detail={disposition === "Not recorded" ? "No unsupported inference" : "Explicit governance event"} />
             <KpiCard label="Score" value={decimal(decision.compositeScore)} />
@@ -1207,8 +1207,8 @@ function ExecutiveStory({ decision }: { decision: Decision }) {
         <>
           <p className="story-quote">
             {decision.isReleasedByClock
-              ? `The accountable record connects the AI recommendation, human authorization, decision-time evidence and ${attainment(decision, actuals)} value attainment. The next executive action is to review the ${(outcome.variance ?? 0) >= 0 ? "favorable" : "unfavorable"} variance drivers and retain the learning.`
-              : `The record connects the AI recommendation, available human authorization and point-in-time evidence. The outcome is not measured; the next executive action is to ${measurementState(decision) === "Overdue" ? "record overdue outcome evidence" : `measure value on ${prettyDate(decision.outcomeDate)}`}.`}
+              ? `The accountable record connects the model-derived recommendation, human authorization, decision-time evidence and ${attainment(decision, actuals)} value attainment. The next executive action is to review the ${(outcome.variance ?? 0) >= 0 ? "favorable" : "unfavorable"} variance drivers and retain the learning.`
+              : `The record connects the model-derived recommendation, available human authorization and point-in-time evidence. The outcome is not measured; the next executive action is to ${measurementState(decision) === "Overdue" ? "record overdue outcome evidence" : `measure value on ${prettyDate(decision.outcomeDate)}`}.`}
           </p>
           <div className="story-scenario-row">
             {selectedScenarios.map((scenario) => (

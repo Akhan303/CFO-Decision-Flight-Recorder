@@ -2,6 +2,9 @@ import { readFileSync } from "node:fs";
 
 const load = (name) => JSON.parse(readFileSync(new URL(`../src/data/${name}.json`, import.meta.url), "utf8"));
 const semanticContract = JSON.parse(readFileSync(new URL("../release/foundry-public-semantic-contract.json", import.meta.url), "utf8"));
+const aipContract = JSON.parse(readFileSync(new URL("../release/aip-provenance-contract.json", import.meta.url), "utf8"));
+const appSource = readFileSync(new URL("../src/App.tsx", import.meta.url), "utf8");
+const readmeSource = readFileSync(new URL("../README.md", import.meta.url), "utf8");
 const decisions = load("decisions");
 const events = load("events");
 const context = load("context");
@@ -18,6 +21,19 @@ const sameValues = (actual, expected) =>
 if (semanticContract.contractVersion !== "FDR-PUBLIC-v1") errors.push("Unexpected public semantic contract version");
 if (semanticContract.projection.runtimeConnectionToFoundry !== false) errors.push("Public projection contract must prohibit runtime Foundry connectivity");
 if (semanticContract.financeModelVersion !== financePolicy.modelVersion) errors.push("Semantic contract finance model does not match finance policy");
+
+if (aipContract.contractVersion !== "AIP-PROVENANCE-v1") errors.push("Unexpected AIP provenance contract version");
+if (aipContract.currentState.financeModelVersion !== financePolicy.modelVersion) errors.push("AIP provenance contract finance model does not match finance policy");
+if (aipContract.currentState.llmBacked !== false || aipContract.currentState.generationMode !== "deterministic_scoring") {
+  errors.push("AIP provenance contract must remain deterministic until a model-backed run and evaluation evidence exist");
+}
+if (aipContract.upgradeGate.minimumEvaluationCases < 12) errors.push("AIP upgrade gate must retain at least 12 evaluation cases");
+if (aipContract.requiredPersistedProvenance.length < 15) errors.push("AIP persisted provenance contract is incomplete");
+
+const claimSurface = `${appSource}\n${readmeSource}\n${JSON.stringify(decisions)}\n${JSON.stringify(events)}`;
+for (const prohibitedClaim of ["AI Recommendation", "AI recommendation", "AI analysis", "AI-driven"]) {
+  if (claimSurface.includes(prohibitedClaim)) errors.push(`Unproven AI claim remains in public source: ${prohibitedClaim}`);
+}
 
 if (financePolicy.modelVersion !== "FIN-SCENARIO-v1") errors.push("Unexpected finance model version");
 if (!financePolicy.owner || !financePolicy.ebitdaFormula || !financePolicy.npvProxyFormula) errors.push("Finance calculation policy is incomplete");

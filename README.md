@@ -5,7 +5,7 @@ A static, read-only React and TypeScript demonstration of governed executive dec
 ## What the showcase demonstrates
 
 - A CFO command center spanning eight decisions and three business units
-- Separation of AI recommendations from authorized human decisions
+- Separation of model-derived recommendations from authorized human decisions
 - Approval-authority and recommendation-disposition control checks
 - Point-in-time evidence with conflicting facts quarantined from trusted drivers
 - Base, upside, and downside cases with explicit probabilities and assumptions
@@ -18,6 +18,8 @@ A static, read-only React and TypeScript demonstration of governed executive dec
 The experience is intentionally honest about incomplete governance evidence. Authority gaps, missing recommendation dispositions, and conflicting source facts remain visible as control findings; they are not silently repaired or converted into trusted evidence. Stable structural rules fail the build, while known decision-record exceptions are surfaced as warnings and in the UI.
 
 The finance model is identified as `FIN-SCENARIO-v1`. Calculations use unrounded USD and presentation values are rounded to one decimal million. The NPV figure is an explicitly labeled proxy, not a complete valuation model.
+
+The showcase deliberately uses the label **model-derived recommendation**. It may be upgraded to an AI/AIP-generated claim only after the private Foundry system persists model and prompt provenance, evidence citations, a run identifier, and a passing evaluation-suite result defined in `release/aip-provenance-contract.json`.
 
 ## Local commands
 
