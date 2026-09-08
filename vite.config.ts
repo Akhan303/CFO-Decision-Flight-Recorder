@@ -10,6 +10,14 @@ export default defineConfig({
     sourcemap: false,
     minify: "esbuild",
     cssMinify: true,
-    reportCompressedSize: true
+    reportCompressedSize: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          charts: ["recharts"]
+        }
+      }
+    }
   }
 });

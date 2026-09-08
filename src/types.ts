@@ -47,6 +47,47 @@ export interface Scenario {
   scenarioName: string;
   baseScore: number;
   scenarioScore: number;
+  probabilityPct: number;
+  impactBasis: "Expected" | "Downside";
+  impactMultiplier: number;
+  assumptionDelta: string;
+}
+
+export interface EconomicsAssumption {
+  decisionId: string;
+  currency: "USD";
+  horizonMonths: number;
+  upfrontInvestmentUsd: number;
+  cashConversionPct: number;
+  discountRatePct: number;
+  cashTiming: string;
+  overlapGroup: string;
+  overlapReservePct: number;
+  assumptionStatus: "Illustrative";
+  asOfDate: string;
+}
+
+export interface OutcomeActual {
+  decisionId: string;
+  actualEbitdaUsd: number;
+  currency: "USD";
+  measurementStartDate: string;
+  measurementEndDate: string;
+  recordedAt: string;
+  sourceSystem: string;
+  evidenceStatus: "Observed";
+}
+
+export interface FinancePolicy {
+  modelVersion: string;
+  owner: string;
+  probabilityMethod: string;
+  ebitdaFormula: string;
+  npvProxyFormula: string;
+  discountTiming: string;
+  overlapTreatment: string;
+  roundingPolicy: string;
+  lastValidated: string;
 }
 
 export interface ContextMetric {

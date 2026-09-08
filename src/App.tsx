@@ -32,17 +32,39 @@ import decisionsJson from "./data/decisions.json";
 import eventsJson from "./data/events.json";
 import scenariosJson from "./data/scenarios.json";
 import contextJson from "./data/context.json";
+import economicsJson from "./data/economics.json";
+import actualsJson from "./data/actuals.json";
+import financePolicyJson from "./data/finance-policy.json";
 import type {
   ContextMetric,
   Decision,
+  EconomicsAssumption,
+  FinancePolicy,
   GovernanceEvent,
+  OutcomeActual,
   Scenario
 } from "./types";
+import {
+  assessApprovalAuthority,
+  assessContextEvidence,
+  attainment,
+  executiveActionForDecision,
+  financialBreakEven,
+  measurementState,
+  outcomeAssessment,
+  recommendationDisposition,
+  scenarioEconomics,
+  summarizeDecisionEconomics,
+  SIMULATION_DATE
+} from "./domain";
 
 const decisions = decisionsJson as Decision[];
 const events = eventsJson as GovernanceEvent[];
 const scenarios = scenariosJson as Scenario[];
 const contextRows = contextJson as ContextMetric[];
+const economics = economicsJson as EconomicsAssumption[];
+const actuals = actualsJson as OutcomeActual[];
+const financePolicy = financePolicyJson as FinancePolicy;
 
 const COLORS = ["#43d8ff", "#7b61ff", "#36d399", "#ffb84d", "#ff6b7a", "#77a6ff"];
 
@@ -73,13 +95,29 @@ const stateTone: Record<string, string> = {
   "Outcome Pending": "warning"
 };
 
+function contextSnapshot(decision: Decision): ContextMetric[] {
+  return assessContextEvidence(decision, contextRows).selected;
+}
+
 function money(value: number): string {
   const sign = value < 0 ? "-" : "";
-  return `${sign}$${Math.abs(value / 1_000_000).toFixed(1)}M`;
+  const rounded = Math.round((Math.abs(value / 1_000_000) + Number.EPSILON) * 10) / 10;
+  return `${sign}$${rounded.toFixed(1)}M`;
 }
 
 function decimal(value: number): string {
   return value.toFixed(3);
+}
+
+function outcomeFor(decision: Decision) {
+  return outcomeAssessment(decision, actuals);
+}
+
+function metricValue(row: ContextMetric): string {
+  if (row.metricName.includes("USD M")) return `$${row.metricValue.toFixed(1)}M`;
+  if (row.metricName.includes("%")) return `${row.metricValue.toFixed(1)}%`;
+  if (row.metricName.includes("days")) return `${row.metricValue.toFixed(1)} days`;
+  return row.metricValue.toFixed(2);
 }
 
 function prettyDate(value: string): string {
@@ -207,6 +245,7 @@ function DecisionSelector({
 function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main-content">Skip to main content</a>
       <aside className="sidebar">
         <div className="brand">
           <img src="./arcadia-mark.svg" alt="" />
@@ -232,7 +271,7 @@ function Shell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <main className="main-area">
+      <main className="main-area" id="main-content" tabIndex={-1}>
         <div className="topbar">
           <div className="topbar-title">
             <span>Executive Experience</span>
@@ -255,10 +294,8 @@ function CommandCenter() {
 
   const totalExpected = decisions.reduce((sum, item) => sum + item.expectedEbitdaUsd, 0);
   const totalDownside = decisions.reduce((sum, item) => sum + item.downsideEbitdaUsd, 0);
-  const realized = decisions.filter((item) => item.outcomeStatus === "Realized").length;
-  const projected = decisions.filter((item) => item.outcomeStatus === "Projected").length;
-  const escalated = decisions.filter((item) => item.escalationCount > 0).length;
-  const highRisk = decisions.filter((item) => item.downsideEbitdaUsd <= -5_000_000).length;
+  const realized = decisions.filter((item) => measurementState(item) === "Realized").length;
+  const projected = decisions.filter((item) => measurementState(item) !== "Realized").length;
 
   const stateMix = groupCount(decisions.map((item) => item.lifecycleState));
   const typeMix = groupCount(decisions.map((item) => item.decisionType));
@@ -270,6 +307,19 @@ function CommandCenter() {
     downside: item.downsideEbitdaUsd / 1_000_000,
     confidence: Number(item.confidencePercent.replace("%", ""))
   }));
+  const actionQueue = decisions.flatMap((decision) => {
+    const action = executiveActionForDecision(decision, events);
+    return action ? [{ decision, action }] : [];
+  });
+  const authorityGaps = decisions.filter((item) => assessApprovalAuthority(item, events).status === "Authority gap").length;
+  const portfolioEconomics = decisions.map((decision) => summarizeDecisionEconomics(
+    decision,
+    scenarios.filter((row) => row.decisionId === decision.decisionId),
+    economics.find((row) => row.decisionId === decision.decisionId)!,
+  ));
+  const riskAdjustedEbitda = portfolioEconomics.reduce((sum, item) => sum + item.probabilityWeightedEbitdaUsd, 0);
+  const overlapReservedEbitda = portfolioEconomics.reduce((sum, item) => sum + item.overlapReservedEbitdaUsd, 0);
+  const probabilityWeightedNpv = portfolioEconomics.reduce((sum, item) => sum + item.probabilityWeightedNpvUsd, 0);
 
   return (
     <>
@@ -286,18 +336,20 @@ function CommandCenter() {
         </div>
       </PageHeading>
 
-      <div className="kpi-grid six">
+      <div className="kpi-grid four">
         <KpiCard label="Total decisions" value={decisions.length} detail="Across three business units" />
-        <KpiCard label="Expected EBITDA" value={money(totalExpected)} detail="Portfolio opportunity" tone="positive" />
-        <KpiCard label="Downside exposure" value={money(totalDownside)} detail="Precomputed display value" tone="critical" />
-        <KpiCard label="High-risk decisions" value={highRisk} detail="Downside at or below -$5M" tone="warning" />
-        <KpiCard label="Escalated records" value={escalated} detail="Historical activity" tone="info" />
+        <KpiCard label="Gross modeled EBITDA" value={money(totalExpected)} detail="Undiscounted · overlap not adjusted" tone="positive" />
+        <KpiCard label="Probability-weighted EBITDA" value={money(riskAdjustedEbitda)} detail="Across explicit scenario probabilities" tone="positive" />
+        <KpiCard label="Overlap-reserved planning value" value={money(overlapReservedEbitda)} detail="Portfolio planning only" tone="warning" />
+        <KpiCard label="Probability-weighted NPV proxy" value={money(probabilityWeightedNpv)} detail="Cash-converted · midpoint discounted" tone={probabilityWeightedNpv >= 0 ? "positive" : "critical"} />
+        <KpiCard label="Gross downside exposure" value={money(totalDownside)} detail="Non-additive stress indicator" tone="critical" />
+        <KpiCard label="Authority gaps" value={authorityGaps} detail="Required approver not evidenced" tone={authorityGaps ? "critical" : "positive"} />
         <KpiCard label="Outcomes" value={`${realized} / ${projected}`} detail="Realized / projected" />
       </div>
 
       <div className="dashboard-grid">
         <Panel title="Decision mix by type" eyebrow="Portfolio composition">
-          <div className="chart">
+          <div className="chart" role="img" aria-label="Bar chart showing decision count by decision type">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={typeMix} layout="vertical" margin={{ left: 22, right: 18 }}>
                 <CartesianGrid stroke="#21314d" horizontal={false} />
@@ -315,7 +367,7 @@ function CommandCenter() {
         </Panel>
 
         <Panel title="Business-unit coverage" eyebrow="Executive portfolio">
-          <div className="chart">
+          <div className="chart" role="img" aria-label="Bar chart showing decision count by business unit">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={unitMix}>
                 <CartesianGrid stroke="#21314d" vertical={false} />
@@ -335,7 +387,7 @@ function CommandCenter() {
         </Panel>
 
         <Panel title="Workflow state distribution" eyebrow="Current public snapshot">
-          <div className="chart">
+          <div className="chart" role="img" aria-label="Donut chart showing decision count by workflow state">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={stateMix} dataKey="value" nameKey="name" innerRadius={54} outerRadius={88} paddingAngle={3}>
@@ -352,8 +404,8 @@ function CommandCenter() {
           </div>
         </Panel>
 
-        <Panel title="Expected value vs downside" eyebrow="Confidence-sized exposure">
-          <div className="chart">
+        <Panel title="Modeled value vs downside" eyebrow="Decision-level comparison · not a portfolio forecast">
+          <div className="chart" role="img" aria-label="Scatter chart comparing modeled EBITDA value and downside for each decision">
             <ResponsiveContainer width="100%" height="100%">
               <ScatterChart margin={{ left: 0, right: 18, top: 12, bottom: 6 }}>
                 <CartesianGrid stroke="#21314d" />
@@ -389,6 +441,7 @@ function CommandCenter() {
       <Panel title="Executive decision watchlist" eyebrow="Select any record">
         <div className="table-scroll">
           <table className="data-table interactive">
+            <caption className="sr-only">Executive decision watchlist with governance state, modeled value, downside and outcome status</caption>
             <thead>
               <tr>
                 <th>Decision</th>
@@ -403,7 +456,19 @@ function CommandCenter() {
             </thead>
             <tbody>
               {decisions.map((decision) => (
-                <tr key={decision.decisionId} onClick={() => navigate(`/decision/${decision.decisionId}`)}>
+                <tr
+                  key={decision.decisionId}
+                  role="link"
+                  tabIndex={0}
+                  aria-label={`Open ${decision.decisionId}: ${decision.decisionTitle}`}
+                  onClick={() => navigate(`/decision/${decision.decisionId}`)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      navigate(`/decision/${decision.decisionId}`);
+                    }
+                  }}
+                >
                   <td>
                     <strong>{decision.decisionId}</strong>
                     <span>{decision.decisionTitle}</span>
@@ -419,6 +484,21 @@ function CommandCenter() {
               ))}
             </tbody>
           </table>
+        </div>
+      </Panel>
+
+      <Panel title="Executive action queue" eyebrow="Exceptions requiring an accountable next step">
+        <div className="action-queue">
+          {actionQueue.map(({ decision, action }) => (
+            <button key={`${decision.decisionId}-${action.action}`} onClick={() => navigate(`/decision/${decision.decisionId}`)}>
+              <span><StatusBadge tone={action.tone}>{action.sla}</StatusBadge></span>
+              <strong>{action.action}</strong>
+              <small>
+                {decision.decisionId} · Owner: {action.owner} · Prerequisite: {action.prerequisite} · Basis: {action.materialityBasis}
+              </small>
+              <b>Open →</b>
+            </button>
+          ))}
         </div>
       </Panel>
     </>
@@ -457,7 +537,7 @@ function DecisionHeader({ decision }: { decision: Decision }) {
           {decision.escalationTier}
         </StatusBadge>
         <span>{decision.outcomeStatus} outcome</span>
-        <span>{decision.contextMetricCount} context observations</span>
+        <span>{contextSnapshot(decision).length} executive context drivers</span>
       </div>
 
       <nav className="decision-tabs" aria-label="Decision experience">
@@ -510,8 +590,10 @@ function JourneyRail({ decision }: { decision: Decision }) {
 }
 
 function RecommendationPanel({ decision }: { decision: Decision }) {
+  const authority = assessApprovalAuthority(decision, events);
+  const disposition = recommendationDisposition(decision.decisionId, events);
   return (
-    <Panel title="Recommendation" eyebrow="Precomputed executive output" className="recommendation-panel">
+    <Panel title="Recommendation and accountable decision" eyebrow="AI advice is distinct from human authority" className="recommendation-panel">
       <div className="recommendation-layout">
         <div>
           <StatusBadge tone="info">{decision.recommendationLabel}</StatusBadge>
@@ -526,6 +608,27 @@ function RecommendationPanel({ decision }: { decision: Decision }) {
             <span style={{ width: `${decision.compositeScore * 100}%` }} />
           </div>
           <small>Confidence {decision.confidencePercent}</small>
+        </div>
+      </div>
+
+      <div className="authority-grid">
+        <div>
+          <span>AI recommendation</span>
+          <strong>{decision.recommendedAction}</strong>
+          <small>Decision support · not autonomous authority</small>
+        </div>
+        <div>
+          <span>Authorized human decision</span>
+          <strong>{authority.status}</strong>
+          <small>
+            Required: {authority.requiredRole} · Actual: {authority.actualRole ?? "Not recorded"}
+            {authority.approvalDate ? ` · ${authority.approvalDate}` : ""}
+          </small>
+        </div>
+        <div>
+          <span>Recommendation disposition</span>
+          <strong>{disposition}</strong>
+          <small>{disposition === "Not recorded" ? "Accepted / modified / overridden / deferred cannot be inferred" : "Explicitly recorded in the governance trail"}</small>
         </div>
       </div>
 
@@ -575,7 +678,7 @@ function DecisionRecordPage() {
 
             <Panel title="Supporting evidence" eyebrow="Public display snapshot">
               <div className="evidence-list">
-                <div><span>Context observations</span><strong>{decision.contextMetricCount}</strong></div>
+                <div><span>Executive context drivers</span><strong>{contextSnapshot(decision).length}</strong></div>
                 <div><span>Evidence sources</span><strong>{decision.contextSources.length}</strong></div>
                 <div><span>Historical events</span><strong>{decision.eventCount}</strong></div>
                 <div><span>Scenario cases</span><strong>3</strong></div>
@@ -595,17 +698,9 @@ function ContextPage() {
   return (
     <DecisionView>
       {(decision) => {
-        const rows = contextRows.filter((row) => row.decisionId === decision.decisionId);
+        const assessment = assessContextEvidence(decision, contextRows);
+        const rows = assessment.selected;
         const uniqueMetrics = new Set(rows.map((row) => row.metricName)).size;
-        const chartMetrics = ["EBITDA (USD M)", "Net Sales (USD M)", "EBITDA Margin %"];
-        const trendData = chartMetrics.map((metricName) => {
-          const metricRows = rows.filter((row) => row.metricName === metricName);
-          return {
-            metric: metricName.replace(" (USD M)", "").replace(" %", ""),
-            first: metricRows[0]?.metricValue,
-            second: metricRows[1]?.metricValue
-          };
-        });
 
         return (
           <>
@@ -616,30 +711,21 @@ function ContextPage() {
             />
 
             <div className="kpi-grid four">
-              <KpiCard label="Context observations" value={rows.length} detail={`${uniqueMetrics} distinct metrics`} />
+              <KpiCard label="Trusted drivers" value={rows.length} detail={`${uniqueMetrics} unambiguous metrics`} />
+              <KpiCard label="Quarantined conflicts" value={assessment.conflicts.length} detail="Excluded from decision evidence" tone={assessment.conflicts.length ? "critical" : "positive"} />
               <KpiCard label="Evidence sources" value={new Set(rows.map((row) => row.sourceSystem)).size} detail="Synthetic display systems" />
-              <KpiCard label="As-of date" value={prettyDate(rows[0].dataAsOfDate)} detail="Decision-time snapshot" />
-              <KpiCard label="Evidence classification" value={new Set(rows.map((row) => row.truthClassification)).size} detail="Recorded and derived" />
+              <KpiCard label="As-of date" value={rows[0] ? prettyDate(rows[0].dataAsOfDate) : "Not available"} detail="No later than decision date" />
             </div>
 
             <div className="two-column">
-              <Panel title="Selected financial indicators" eyebrow="Two captured observation windows">
-                <div className="chart tall">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={trendData}>
-                      <CartesianGrid stroke="#21314d" vertical={false} />
-                      <XAxis dataKey="metric" stroke="#8292ac" />
-                      <YAxis stroke="#8292ac" />
-                      <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
-                  labelStyle={TOOLTIP_LABEL_STYLE}
-                  itemStyle={TOOLTIP_ITEM_STYLE}
-                />
-                      <Legend />
-                      <Bar dataKey="first" name="Decision-Time Snapshot" fill="#43d8ff" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="second" name="Comparison Snapshot" fill="#7b61ff" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+              <Panel title="Decision-time drivers" eyebrow="Unit-aware evidence · no mixed-scale axis">
+                <div className="evidence-list">
+                  {rows.map((row) => (
+                    <div key={`${row.metricName}-${row.dataAsOfDate}`}>
+                      <span>{row.metricName}</span>
+                      <strong>{metricValue(row)}</strong>
+                    </div>
+                  ))}
                 </div>
               </Panel>
 
@@ -663,9 +749,35 @@ function ContextPage() {
               </Panel>
             </div>
 
-            <Panel title="Complete context evidence" eyebrow="Decision-time metrics">
+            {assessment.conflicts.length > 0 && (
+              <Panel title="Evidence integrity exceptions" eyebrow="Conflicting source-owned facts · quarantined">
+                <div className="integrity-callout">
+                  These records are conflicting source facts or derived KPIs with unresolved inputs. They are shown for remediation and do not feed the trusted driver view.
+                </div>
+                <div className="table-scroll">
+                  <table className="data-table">
+                    <caption className="sr-only">Quarantined evidence conflicts excluded from the trusted driver view</caption>
+                    <thead><tr><th>Metric</th><th>Observed values</th><th>Issue</th><th>Source</th><th>As-of date</th></tr></thead>
+                    <tbody>
+                      {assessment.conflicts.map((conflict) => (
+                        <tr key={conflict.key}>
+                          <td><strong>{conflict.metricName}</strong></td>
+                          <td className="negative-text">{conflict.values.join(" vs ")}</td>
+                          <td>{conflict.reason}</td>
+                          <td>{conflict.sourceSystem}</td>
+                          <td>{prettyDate(conflict.dataAsOfDate)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </Panel>
+            )}
+
+            <Panel title="Executive context evidence" eyebrow="Unambiguous decision-time metrics with authoritative source ownership">
               <div className="table-scroll">
                 <table className="data-table">
+                  <caption className="sr-only">Executive context evidence with source ownership, classification and as-of date</caption>
                   <thead>
                     <tr>
                       <th>Metric</th>
@@ -679,7 +791,7 @@ function ContextPage() {
                     {rows.map((row, index) => (
                       <tr key={`${row.metricName}-${index}`}>
                         <td><strong>{row.metricName}</strong></td>
-                        <td>{row.metricValue.toFixed(2)}</td>
+                        <td>{metricValue(row)}</td>
                         <td>{row.sourceSystem}</td>
                         <td><StatusBadge tone={row.truthClassification === "Recorded" ? "positive" : "info"}>{row.truthClassification}</StatusBadge></td>
                         <td>{prettyDate(row.dataAsOfDate)}</td>
@@ -702,6 +814,8 @@ function AuditPage() {
       {(decision) => {
         const decisionEvents = events.filter((event) => event.decisionId === decision.decisionId);
         const latest = decisionEvents[decisionEvents.length - 1];
+        const authority = assessApprovalAuthority(decision, decisionEvents);
+        const disposition = recommendationDisposition(decision.decisionId, decisionEvents);
 
         return (
           <>
@@ -711,12 +825,22 @@ function AuditPage() {
               subtitle="Append-only historical activity rendered as a read-only chronology."
             />
 
-            <div className="kpi-grid four">
+            <div className="kpi-grid six">
               <KpiCard label="Current state" value={decision.lifecycleState} detail="Public snapshot" />
               <KpiCard label="Event count" value={decisionEvents.length} detail="Historical records" />
               <KpiCard label="Last event" value={latest.eventLabel} detail={latest.date} />
               <KpiCard label="Escalations" value={decision.escalationCount} detail={decision.escalationTier} tone={decision.escalationCount ? "critical" : "default"} />
+              <KpiCard label="Approval authority" value={authority.status} detail={`${authority.actualRole ?? "No approver"} / ${authority.requiredRole}`} tone={authority.status === "Satisfied" ? "positive" : "critical"} />
+              <KpiCard label="Recommendation disposition" value={disposition} detail={disposition === "Not recorded" ? "Governance gap" : "Explicit event"} tone={disposition === "Not recorded" ? "warning" : "positive"} />
             </div>
+
+            <Panel title="Approval control check" eyebrow="Policy requirement reconciled to event evidence">
+              <div className="authority-grid">
+                <div><span>Required authority</span><strong>{authority.requiredRole}</strong><small>{decision.escalationTier}</small></div>
+                <div><span>Observed authority</span><strong>{authority.actualRole ?? "Not recorded"}</strong><small>{authority.approvalDate ?? "No approval date"}</small></div>
+                <div><span>Control result</span><strong>{authority.status}</strong><small>{authority.explanation}</small></div>
+              </div>
+            </Panel>
 
             <Panel title="Accountability chronology" eyebrow="Who acted, what occurred, and when">
               <div className="timeline">
@@ -752,23 +876,24 @@ function ReplayPage() {
   return (
     <DecisionView>
       {(decision) => {
-        const rows = contextRows.filter((row) => row.decisionId === decision.decisionId);
-        const firstWindow = rows.slice(0, 10);
+        const rows = contextSnapshot(decision);
         const decisionEvents = events.filter((event) => event.decisionId === decision.decisionId);
+        const outcome = outcomeFor(decision);
+        const actual = actuals.find((row) => row.decisionId === decision.decisionId);
 
         return (
           <>
             <PageHeading
               eyebrow="Decision Replay"
               title="THEN vs NOW"
-              subtitle="Reconstruct the evidence available at decision time and compare it with the released outcome view."
+              subtitle={decision.isReleasedByClock ? "Reconstruct the evidence available at decision time and compare it with the released outcome." : "Reconstruct the evidence available at decision time and track the outcome evidence still required."}
             />
 
             <div className="kpi-grid four">
               <KpiCard label="Decision-time observations" value={rows.length} detail="THEN evidence" />
               <KpiCard label="Historical events" value={decisionEvents.length} detail="Lifecycle chronology" />
-              <KpiCard label="Outcome status" value={decision.outcomeStatus} detail={decision.isReleasedByClock ? "Released" : "Projected"} />
-              <KpiCard label="Outcome variance" value={`${decision.outcomeVarianceMRef.toFixed(2)}M`} detail={`As of ${prettyDate(decision.outcomeDate)}`} tone="critical" />
+              <KpiCard label="Measurement status" value={measurementState(decision)} detail={measurementState(decision) === "Overdue" ? "Outcome not recorded" : prettyDate(decision.outcomeDate)} tone={measurementState(decision) === "Overdue" ? "critical" : "info"} />
+              <KpiCard label={decision.isReleasedByClock ? "Actual variance" : "Projected variance"} value={outcome.variance === undefined ? "—" : money(outcome.variance)} detail={`${outcome.basis} · value less expected`} tone="critical" />
             </div>
 
             <div className="then-now">
@@ -779,7 +904,7 @@ function ReplayPage() {
                   <p>{decision.whySummary}</p>
                 </div>
                 <div className="compact-metrics">
-                  {firstWindow.slice(0, 6).map((row) => (
+                  {rows.map((row) => (
                     <div key={row.metricName}>
                       <span>{row.metricName}</span>
                       <strong>{row.metricValue.toFixed(2)}</strong>
@@ -788,19 +913,20 @@ function ReplayPage() {
                 </div>
               </Panel>
 
-              <Panel title="NOW — Released evidence" eyebrow={prettyDate(decision.outcomeDate)}>
+              <Panel title={decision.isReleasedByClock ? "NOW — Released evidence" : "NOW — Awaiting evidence"} eyebrow={prettyDate(decision.outcomeDate)}>
                 <div className="outcome-hero">
                   <StatusBadge tone={decision.outcomeStatus === "Realized" ? "positive" : "info"}>
                     {decision.outcomeStatus}
                   </StatusBadge>
-                  <strong>{decision.outcomeVarianceMRef.toFixed(2)}M</strong>
-                  <span>Outcome variance reference</span>
+                  <strong>{outcome.variance === undefined ? "—" : money(outcome.variance)}</strong>
+                  <span>{outcome.basis} variance · value less expected</span>
                 </div>
                 <dl className="definition-grid single">
                   <div><dt>Expected EBITDA</dt><dd>{money(decision.expectedEbitdaUsd)}</dd></div>
                   <div><dt>Downside exposure</dt><dd>{money(decision.downsideEbitdaUsd)}</dd></div>
                   <div><dt>Final recorded state</dt><dd>{decision.lifecycleState}</dd></div>
                   <div><dt>Evidence release</dt><dd>{decision.isReleasedByClock ? "Released" : "Not yet released"}</dd></div>
+                  <div><dt>Outcome source</dt><dd>{actual ? `${actual.sourceSystem} · recorded ${prettyDate(actual.recordedAt)}` : "Projection reference · no observed actual"}</dd></div>
                 </dl>
               </Panel>
             </div>
@@ -824,10 +950,15 @@ function OutcomesPage() {
   return (
     <DecisionView>
       {(decision) => {
-        const realizedItems = decisions.filter((item) => item.outcomeStatus === "Realized");
-        const projectedItems = decisions.filter((item) => item.outcomeStatus === "Projected");
+        const realizedItems = decisions.filter((item) => measurementState(item) === "Realized");
+        const projectedItems = decisions.filter((item) => measurementState(item) !== "Realized");
+        const overdueItems = projectedItems.filter((item) => measurementState(item) === "Overdue");
 
-        const OutcomeCard = ({ item }: { item: Decision }) => (
+        const OutcomeCard = ({ item }: { item: Decision }) => {
+          const outcome = outcomeFor(item);
+          const variance = outcome.variance;
+          const actual = actuals.find((row) => row.decisionId === item.decisionId);
+          return (
           <article className={`outcome-card ${item.decisionId === decision.decisionId ? "selected" : ""}`}>
             <header>
               <div>
@@ -840,25 +971,34 @@ function OutcomesPage() {
             </header>
             <div className="outcome-values">
               <div><span>Expected</span><strong>{money(item.expectedEbitdaUsd)}</strong></div>
-              <div><span>Outcome variance</span><strong className="negative-text">{item.outcomeVarianceMRef.toFixed(2)}M</strong></div>
+              <div><span>{outcome.basis}</span><strong>{outcome.value === undefined ? "—" : money(outcome.value)}</strong></div>
+              <div><span>Variance · value less expected</span><strong className={(variance ?? 0) >= 0 ? "positive-text" : "negative-text"}>{variance === undefined ? "—" : money(variance)}</strong></div>
+              <div><span>Direction</span><strong>{variance === undefined ? "Unverified" : variance >= 0 ? "Favorable" : "Unfavorable"}</strong></div>
+              <div><span>Attainment</span><strong>{attainment(item, actuals)}</strong></div>
+              <div><span>Measurement status</span><strong>{measurementState(item)}</strong></div>
               <div><span>Measurement date</span><strong>{prettyDate(item.outcomeDate)}</strong></div>
+              <div><span>Evidence source</span><strong>{actual ? `${actual.sourceSystem} · ${prettyDate(actual.recordedAt)}` : "Projection reference · not observed"}</strong></div>
+              <div><span>Learning / next gate</span><strong>{item.isReleasedByClock ? "Review variance drivers" : measurementState(item) === "Overdue" ? "Record outcome evidence" : "Measure on scheduled date"}</strong></div>
             </div>
           </article>
-        );
+          );
+        };
+
+        const selectedOutcome = outcomeFor(decision);
 
         return (
           <>
             <PageHeading
               eyebrow="Outcomes & Learning"
               title="Measured decision outcomes"
-              subtitle="Released and projected outcomes connected to the original executive record."
+              subtitle="Expected value compared with measured actuals or clearly labeled projections; variance equals outcome value less expected value."
             />
 
             <div className="kpi-grid four">
               <KpiCard label="Released outcomes" value={realizedItems.length} detail="Realized display records" tone="positive" />
-              <KpiCard label="Projected outcomes" value={projectedItems.length} detail="Future measurement dates" tone="info" />
+              <KpiCard label="Projected outcomes" value={projectedItems.length} detail={`${overdueItems.length} overdue · ${projectedItems.length - overdueItems.length} scheduled`} tone="info" />
               <KpiCard label="Selected outcome" value={decision.outcomeStatus} detail={decision.decisionId} />
-              <KpiCard label="Selected variance" value={`${decision.outcomeVarianceMRef.toFixed(2)}M`} detail={prettyDate(decision.outcomeDate)} tone="critical" />
+              <KpiCard label={decision.isReleasedByClock ? "Selected actual variance" : "Selected projected variance"} value={selectedOutcome.variance === undefined ? "—" : money(selectedOutcome.variance)} detail={`${selectedOutcome.basis} · value less expected`} tone="critical" />
             </div>
 
             <Panel title="Released outcomes" eyebrow="Observed performance">
@@ -884,26 +1024,46 @@ function ScenarioPage() {
     <DecisionView>
       {(decision) => {
         const rows = scenarios.filter((row) => row.decisionId === decision.decisionId);
-        const upside = rows.find((row) => row.scenarioName.startsWith("Upside"))!;
-        const downside = rows.find((row) => row.scenarioName.startsWith("Downside"))!;
+        const assumption = economics.find((row) => row.decisionId === decision.decisionId)!;
+        const summary = summarizeDecisionEconomics(decision, rows, assumption);
+        const calculatedRows = rows.map((row) => scenarioEconomics(decision, row, assumption));
+        const breakEven = financialBreakEven(decision, assumption);
 
         return (
           <>
             <PageHeading
               eyebrow="Scenario & Sensitivity"
-              title="Precomputed decision scenarios"
-              subtitle="Base, upside and downside display values for executive inspection."
+              title="Governed financial scenarios"
+              subtitle="Illustrative assumptions separated from recorded facts; values are comparable in USD over an explicit decision horizon."
             />
 
-            <div className="kpi-grid four">
-              <KpiCard label="Base score" value={decimal(decision.compositeScore)} detail="Reference case" />
-              <KpiCard label="Upside score" value={decimal(upside.scenarioScore)} detail={`+${((upside.scenarioScore - upside.baseScore) * 100).toFixed(1)} points`} tone="positive" />
-              <KpiCard label="Downside score" value={decimal(downside.scenarioScore)} detail={`${((downside.scenarioScore - downside.baseScore) * 100).toFixed(1)} points`} tone="critical" />
-              <KpiCard label="Scenario count" value={rows.length} detail="Precomputed cases" />
+            <div className="kpi-grid six">
+              <KpiCard label="Probability-weighted EBITDA" value={money(summary.probabilityWeightedEbitdaUsd)} detail={`${assumption.horizonMonths}-month horizon`} tone="positive" />
+              <KpiCard label="Probability-weighted NPV proxy" value={money(summary.probabilityWeightedNpvUsd)} detail="After investment and discounting" tone={summary.probabilityWeightedNpvUsd >= 0 ? "positive" : "critical"} />
+              <KpiCard label="Upfront investment" value={money(assumption.upfrontInvestmentUsd)} detail={assumption.cashTiming} tone="warning" />
+              <KpiCard label="Cash conversion" value={`${assumption.cashConversionPct}%`} detail={`${assumption.discountRatePct}% discount rate`} />
+              <KpiCard label="Overlap reserve" value={`${assumption.overlapReservePct}%`} detail={assumption.overlapGroup} tone="warning" />
+              <KpiCard label="Probability coverage" value={`${summary.probabilityTotalPct}%`} detail={`${rows.length} mutually exclusive cases`} />
             </div>
 
+            <Panel title="Economic model contract" eyebrow="Scope, timing and portfolio treatment">
+              <div className="authority-grid">
+                <div><span>Valuation scope</span><strong>{assumption.currency} · {assumption.horizonMonths} months</strong><small>Assumptions as of {prettyDate(assumption.asOfDate)} · {assumption.assumptionStatus}</small></div>
+                <div><span>Cash and discounting</span><strong>{assumption.cashConversionPct}% conversion · {assumption.discountRatePct}% rate</strong><small>{assumption.cashTiming}. Proxy = midpoint-discounted EBITDA × cash conversion − upfront investment.</small></div>
+                <div><span>Portfolio overlap</span><strong>{assumption.overlapGroup}</strong><small>{assumption.overlapReservePct}% reserve · planning value {money(summary.overlapReservedEbitdaUsd)}</small></div>
+              </div>
+            </Panel>
+
+            <Panel title="Finance breakpoints" eyebrow={`${financePolicy.modelVersion} · calculation provenance`}>
+              <div className="authority-grid">
+                <div><span>Break-even EBITDA</span><strong>{money(breakEven.breakEvenEbitdaUsd)}</strong><small>Minimum horizon benefit required for zero discounted net cash</small></div>
+                <div><span>Base-case headroom</span><strong className={breakEven.baseCaseHeadroomUsd >= 0 ? "positive-text" : "negative-text"}>{money(breakEven.baseCaseHeadroomUsd)}</strong><small>{breakEven.status} at the stated investment and cash conversion</small></div>
+                <div><span>Required cash conversion</span><strong>{Number.isFinite(breakEven.requiredCashConversionPct) ? `${breakEven.requiredCashConversionPct.toFixed(0)}%` : "—"}</strong><small>{financePolicy.discountTiming}. {financePolicy.roundingPolicy}.</small></div>
+              </div>
+            </Panel>
+
             <Panel title="Scenario score comparison" eyebrow="Base / upside / downside">
-              <div className="chart scenario-chart">
+              <div className="chart scenario-chart" role="img" aria-label={`Scenario score comparison for ${decision.decisionId}`}>
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart data={rows} margin={{ left: 12, right: 20, top: 20, bottom: 12 }}>
                     <CartesianGrid stroke="#21314d" vertical={false} />
@@ -931,14 +1091,19 @@ function ScenarioPage() {
             </Panel>
 
             <div className="scenario-cards">
-              {rows.map((row, index) => (
+              {calculatedRows.map(({ scenario: row, ebitdaImpactUsd, discountedNetCashUsd }, index) => (
                 <article key={row.scenarioName}>
-                  <span>{row.scenarioName}</span>
-                  <strong>{decimal(row.scenarioScore)}</strong>
+                  <span>{row.scenarioName} · {row.probabilityPct}%</span>
+                  <strong>{money(ebitdaImpactUsd)}</strong>
                   <div className="gauge-track">
                     <i style={{ width: `${row.scenarioScore * 100}%`, background: index === 1 ? "#36d399" : index === 2 ? "#ff6b7a" : "#43d8ff" }} />
                   </div>
-                  <small>Base reference {decimal(row.baseScore)}</small>
+                  <small>Decision score {decimal(row.scenarioScore)} · base {decimal(row.baseScore)}</small>
+                  <dl>
+                    <div><dt>Assumption</dt><dd>{row.assumptionDelta}</dd></div>
+                    <div><dt>EBITDA impact</dt><dd>{money(ebitdaImpactUsd)} over {assumption.horizonMonths} months</dd></div>
+                    <div><dt>Discounted net cash proxy</dt><dd>{money(discountedNetCashUsd)} after {money(assumption.upfrontInvestmentUsd)} investment</dd></div>
+                  </dl>
                 </article>
               ))}
             </div>
@@ -959,9 +1124,12 @@ function StoryPage() {
 
 function ExecutiveStory({ decision }: { decision: Decision }) {
   const [frame, setFrame] = useState(0);
-  const rows = contextRows.filter((row) => row.decisionId === decision.decisionId);
+  const rows = contextSnapshot(decision);
   const decisionEvents = events.filter((event) => event.decisionId === decision.decisionId);
   const selectedScenarios = scenarios.filter((row) => row.decisionId === decision.decisionId);
+  const authority = assessApprovalAuthority(decision, decisionEvents);
+  const disposition = recommendationDisposition(decision.decisionId, decisionEvents);
+  const outcome = outcomeFor(decision);
 
   const frames = useMemo(() => [
     {
@@ -976,12 +1144,15 @@ function ExecutiveStory({ decision }: { decision: Decision }) {
       )
     },
     {
-      kicker: "Frame 2 · Why We Made It",
-      title: decision.recommendedAction,
+      kicker: "Frame 2 · Advice and Authority",
+      title: "AI recommendation, accountable human decision",
       body: (
         <>
           <p className="story-quote">{decision.whySummary}</p>
           <div className="story-metric-grid">
+            <KpiCard label="AI recommendation" value={decision.recommendedAction} detail="Decision support" />
+            <KpiCard label="Approval authority" value={authority.status} detail={`${authority.actualRole ?? "No approver"} / ${authority.requiredRole}`} tone={authority.status === "Satisfied" ? "positive" : "critical"} />
+            <KpiCard label="Disposition" value={disposition} detail={disposition === "Not recorded" ? "No unsupported inference" : "Explicit governance event"} />
             <KpiCard label="Score" value={decimal(decision.compositeScore)} />
             <KpiCard label="Confidence" value={decision.confidencePercent} />
             <KpiCard label="Expected EBITDA" value={money(decision.expectedEbitdaUsd)} tone="positive" />
@@ -1011,8 +1182,8 @@ function ExecutiveStory({ decision }: { decision: Decision }) {
       body: (
         <div className="story-outcome">
           <div>
-            <span>Outcome variance</span>
-            <strong>{decision.outcomeVarianceMRef.toFixed(2)}M</strong>
+            <span>{decision.isReleasedByClock ? "Actual variance" : "Projected variance"}</span>
+            <strong>{outcome.variance === undefined ? "—" : money(outcome.variance)}</strong>
           </div>
           <div>
             <span>Measurement date</span>
@@ -1024,19 +1195,20 @@ function ExecutiveStory({ decision }: { decision: Decision }) {
           </div>
           <div>
             <span>Evidence release</span>
-            <strong>{decision.isReleasedByClock ? "Released" : "Projected"}</strong>
+            <strong>{decision.isReleasedByClock ? "Released" : measurementState(decision)}</strong>
           </div>
         </div>
       )
     },
     {
       kicker: "Frame 5 · What We Learned",
-      title: "One connected executive record",
+      title: decision.isReleasedByClock ? "Measure value, explain variance, retain the learning" : "Close the governance loop at the next evidence gate",
       body: (
         <>
           <p className="story-quote">
-            The recommendation, decision-time evidence, historical accountability record,
-            scenario display and measured outcome remain connected for executive review.
+            {decision.isReleasedByClock
+              ? `The accountable record connects the AI recommendation, human authorization, decision-time evidence and ${attainment(decision, actuals)} value attainment. The next executive action is to review the ${(outcome.variance ?? 0) >= 0 ? "favorable" : "unfavorable"} variance drivers and retain the learning.`
+              : `The record connects the AI recommendation, available human authorization and point-in-time evidence. The outcome is not measured; the next executive action is to ${measurementState(decision) === "Overdue" ? "record overdue outcome evidence" : `measure value on ${prettyDate(decision.outcomeDate)}`}.`}
           </p>
           <div className="story-scenario-row">
             {selectedScenarios.map((scenario) => (
@@ -1049,7 +1221,7 @@ function ExecutiveStory({ decision }: { decision: Decision }) {
         </>
       )
     }
-  ], [decision, decisionEvents.length, rows, selectedScenarios]);
+  ], [decision, decisionEvents.length, outcome.variance, rows, selectedScenarios]);
 
   return (
     <>
