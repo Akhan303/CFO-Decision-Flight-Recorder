@@ -2,7 +2,7 @@
   "product": "CFO Decision Flight Recorder — Public Showcase",
   "releaseVersion": "1.0.7",
   "financeModelVersion": "FIN-SCENARIO-v1",
-  "generatedAtUtc": "2026-09-09T14:21:51.400Z",
+  "generatedAtUtc": "2026-09-09T17:12:16.965Z",
   "distribution": {
     "sourceMaps": false,
     "minified": true,
@@ -21,14 +21,14 @@
       "sha256": "99f5a06041ad419e0c67d8203537f25405f8adff62287aec7269492f5d454586"
     },
     {
+      "path": "assets/index-DJbRHyxn.js",
+      "bytes": 109945,
+      "sha256": "8fcbc47b6e1cb96ef4acaa306c0af58578791b2cdbe9affeddac0dc41dfc3d52"
+    },
+    {
       "path": "assets/index-DVPd5W7K.css",
       "bytes": 24105,
       "sha256": "05fbb19dd18a3a8601725d23d8fc1711be07deb4fd55b4032abe71da47d067ee"
-    },
-    {
-      "path": "assets/index-ZhU_MqCs.js",
-      "bytes": 108759,
-      "sha256": "77f969f4784ff241b3bd3e8184cdbb0fa2c402b9397b0b3b0ef3c04fc0bbb9ec"
     },
     {
       "path": "assets/react-vendor-4E2OGFNZ.js",
@@ -38,7 +38,7 @@
     {
       "path": "index.html",
       "bytes": 922,
-      "sha256": "f224b996260d7fb74e92dd514b4ef9436193408db92a0ecf028cc7c73804ba91"
+      "sha256": "27f7bb3a47353125369336fab025f77df59319682a9cd4c5a3c4405cdef47608"
     }
   ]
 }
