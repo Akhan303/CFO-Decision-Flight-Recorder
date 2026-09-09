@@ -2,7 +2,7 @@
 
 **Certification date:** 2026-09-09
 **Review scope:** governed Foundry pipeline, ontology-backed OSDK application, controlled AIP proof, and GitHub public showcase release candidate
-**Overall assessment:** **PASS — RELEASE CANDIDATE CERTIFIED**
+**Overall assessment:** **PASS — RELEASED AND FROZEN**
 
 ## Certified release evidence
 
@@ -23,9 +23,12 @@
 
 ## Review artifacts
 
-- Foundry pipeline proposal: `ri.branch..proposal.bbf4d0b7-3a8c-4180-ac2e-20a6e8563cc3` — **OPEN**.
-- OSDK application pull request: `ri.pull-request.main.pull-request.1273933a-d178-41a1-b34f-bd9832fe6793` — **OPEN, checks passing, mergeable**.
-- No proposal or pull request was merged during certification. Nothing was published or deployed from Foundry.
+- Foundry pipeline proposal: `ri.branch..proposal.bbf4d0b7-3a8c-4180-ac2e-20a6e8563cc3` — **MERGED**. The merge intentionally used **Do not build resources** because the exact release snapshot had already passed its targeted build; this avoided an unnecessary 71-resource rebuild.
+- OSDK application pull request: `ri.pull-request.main.pull-request.1273933a-d178-41a1-b34f-bd9832fe6793` — **MERGED** after its required CI passed.
+- GitHub Pages release commit `ad73cf6059523fd64d5211adc149d84f81980915` was fast-forwarded to `main`.
+- GitHub Actions deployment run `34383536973` completed successfully in 1m 7s and published the compiled-only static showcase.
+- Post-deployment smoke checks passed for the command center, D-2026-031, and D-2026-033. The tested URL was `https://akhan303.github.io/CFO-Decision-Flight-Recorder/?release=ad73cf6#/command-center`.
+- A fresh authenticated Foundry OSDK application session loaded D-2026-031 from governed data with `CLOSED`, `REALIZED`, score `0.783`, confidence `51.5%`, expected EBITDA `$13.7M`, downside `-$1.3M`, and `Fully Comparative`; governed actions were correctly disabled for the closed state.
 
 ## Accepted demo limitations
 
@@ -33,12 +36,10 @@
 - Live multi-principal separation-of-duties testing is unavailable in the single-user enrollment. Role/authority logic is covered through governed matrices, event history, disabled-state behavior, and automated tests.
 - AIP generation was proven once in a controlled test with model/logic provenance and a human-authority boundary. No additional generation call was required for this certification.
 - Validator warnings for four approval-authority gaps, eight missing recommendation dispositions, and fourteen quarantined context conflicts are intentional disclosures in the demo dataset, not silent failures.
+- The successful Pages workflow emitted a non-blocking Node.js 20 deprecation warning while GitHub forced the referenced actions to Node.js 24. Updating action majors is a maintenance item, not a release defect.
 
-## Remaining release operations
+## Release freeze
 
-1. Review and merge the two Foundry artifacts.
-2. Commit and deploy the certified public release candidate without changing its semantic contract.
-3. Perform one final three-page post-deployment smoke check.
-4. Freeze the release identifier and begin LinkedIn/demo media production.
+The product release is frozen at public commit `ad73cf6`, Foundry pipeline proposal `ri.branch..proposal.bbf4d0b7-3a8c-4180-ac2e-20a6e8563cc3`, and OSDK pull request `ri.pull-request.main.pull-request.1273933a-d178-41a1-b34f-bd9832fe6793`. Product implementation and release operations are complete. LinkedIn/demo media production is the next phase.
 
 Any code, data, semantic-contract, or policy change after this point invalidates this certification and requires only the affected gate plus the final parity check—not a full restart.
