@@ -19,6 +19,7 @@ export interface Decision {
   expectedEbitdaUsd: number;
   downsideEbitdaUsd: number;
   escalationTier: string;
+  comparisonMode: "Fully Comparative" | "Single Eligible Alternative";
   whySummary: string;
   outcomeStatus: string;
   outcomeDate: string;

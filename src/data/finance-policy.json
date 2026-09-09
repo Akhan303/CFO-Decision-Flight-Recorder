@@ -6,6 +6,6 @@
   "npvProxyFormula": "Probability-weighted midpoint-discounted EBITDA multiplied by cash conversion, less upfront investment",
   "discountTiming": "Operating cash is approximated at the midpoint of the benefit horizon",
   "overlapTreatment": "Decision-level planning reserve applied after probability weighting; not a consolidated forecast elimination",
-  "roundingPolicy": "Calculations use unrounded USD; presentation rounds to one decimal million",
-  "lastValidated": "2026-09-08"
+  "roundingPolicy": "Calculations use unrounded integer USD; presentation rounds to one decimal million using round-half-away-from-zero",
+  "lastValidated": "2026-09-09"
 }

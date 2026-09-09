@@ -13,6 +13,7 @@
     "expectedEbitdaUsd": 13690000,
     "downsideEbitdaUsd": -1280000,
     "escalationTier": "CFO Review",
+    "comparisonMode": "Fully Comparative",
     "whySummary": "Decision intelligence analysis recommends approving the targeted pricing action for the motion-control portfolio. Composite governance score 0.783 with 51.5% confidence. Expected EBITDA impact $13.7M; downside exposure -$1.3M. CFO review is required due to materiality threshold.",
     "outcomeStatus": "Realized",
     "outcomeDate": "2026-05-20",
@@ -40,7 +41,7 @@
         "label": "Maintain status quo (no action)",
         "source": "Baseline Status Quo",
         "isRecommended": false,
-        "economics": "Not available"
+        "economics": "Governed"
       }
     ]
   },
@@ -53,11 +54,12 @@
     "lifecycleState": "Executed",
     "recommendationLabel": "Decision Model (v1) · Score 0.571",
     "recommendedAction": "Approve targeted action",
-    "compositeScore": 0.571,
+    "compositeScore": 0.570988888888889,
     "confidencePercent": "47.7%",
     "expectedEbitdaUsd": 6820000,
     "downsideEbitdaUsd": -1200000,
     "escalationTier": "Management Review",
+    "comparisonMode": "Single Eligible Alternative",
     "whySummary": "Decision intelligence analysis recommends approving the targeted inventory pre-buy for the automation division. Composite governance score 0.571 with 47.7% confidence. Expected EBITDA impact $6.8M; downside exposure -$1.2M. Management review required.",
     "outcomeStatus": "Projected",
     "outcomeDate": "2026-06-01",
@@ -85,7 +87,7 @@
         "label": "Maintain status quo (no action)",
         "source": "Baseline Status Quo",
         "isRecommended": false,
-        "economics": "Not available"
+        "economics": "Deferred No Source"
       }
     ]
   },
@@ -98,12 +100,13 @@
     "lifecycleState": "Closed",
     "recommendationLabel": "Decision Model (v1) · Score 0.461",
     "recommendedAction": "Proceed with guardrails",
-    "compositeScore": 0.461,
+    "compositeScore": 0.4607888888888889,
     "confidencePercent": "49.6%",
     "expectedEbitdaUsd": 4050000,
     "downsideEbitdaUsd": -6030000,
-    "escalationTier": "CFO Review",
-    "whySummary": "Decision intelligence analysis recommends proceeding with guardrails for working capital optimization. Composite governance score 0.461 with 49.6% confidence. Expected EBITDA impact $4.1M; downside exposure -$6.0M. CFO review is required due to downside materiality.",
+    "escalationTier": "Critical Escalated",
+    "comparisonMode": "Single Eligible Alternative",
+    "whySummary": "Decision intelligence analysis recommends proceeding with guardrails for working capital optimization. Composite governance score 0.461 with 49.6% confidence. Expected EBITDA impact $4.1M; downside exposure -$6.0M. Critical escalation is required due to downside materiality.",
     "outcomeStatus": "Realized",
     "outcomeDate": "2026-06-13",
     "outcomeVarianceMRef": -1.29,
@@ -127,10 +130,16 @@
         "economics": "Governed"
       },
       {
+        "label": "Modified by finance leadership",
+        "source": "Finance Leadership Alternative",
+        "isRecommended": false,
+        "economics": "Deferred No Source"
+      },
+      {
         "label": "Maintain status quo (no action)",
         "source": "Baseline Status Quo",
         "isRecommended": false,
-        "economics": "Not available"
+        "economics": "Deferred No Source"
       }
     ]
   },
@@ -143,11 +152,12 @@
     "lifecycleState": "Closed",
     "recommendationLabel": "Decision Model (v1) · Score 0.624",
     "recommendedAction": "Stage implementation",
-    "compositeScore": 0.624,
+    "compositeScore": 0.6241666666666668,
     "confidencePercent": "60.9%",
     "expectedEbitdaUsd": 8090000,
     "downsideEbitdaUsd": -2160000,
     "escalationTier": "Management Review",
+    "comparisonMode": "Single Eligible Alternative",
     "whySummary": "Decision intelligence analysis recommends staging implementation for the servo component dual-sourcing initiative. Composite governance score 0.624 with 60.9% confidence. Expected EBITDA impact $8.1M; downside exposure -$2.2M. Management review required. Decision was escalated to CFO for additional oversight due to supply chain criticality.",
     "outcomeStatus": "Realized",
     "outcomeDate": "2026-06-25",
@@ -175,7 +185,7 @@
         "label": "Maintain status quo (no action)",
         "source": "Baseline Status Quo",
         "isRecommended": false,
-        "economics": "Not available"
+        "economics": "Deferred No Source"
       }
     ]
   },
@@ -188,11 +198,12 @@
     "lifecycleState": "Outcome Pending",
     "recommendationLabel": "Decision Model (v1) · Score 0.485",
     "recommendedAction": "Hold and gather evidence",
-    "compositeScore": 0.485,
+    "compositeScore": 0.48536190476190477,
     "confidencePercent": "66.7%",
     "expectedEbitdaUsd": 5420000,
     "downsideEbitdaUsd": -5450000,
     "escalationTier": "CFO Review",
+    "comparisonMode": "Single Eligible Alternative",
     "whySummary": "Decision intelligence analysis recommends holding and gathering additional evidence before committing to the Austin capacity expansion. Composite governance score 0.485 with 66.7% confidence. Expected EBITDA impact $5.4M; downside exposure -$5.5M. CFO review required.",
     "outcomeStatus": "Projected",
     "outcomeDate": "2026-07-07",
@@ -220,7 +231,7 @@
         "label": "Maintain status quo (no action)",
         "source": "Baseline Status Quo",
         "isRecommended": false,
-        "economics": "Not available"
+        "economics": "Deferred No Source"
       }
     ]
   },
@@ -233,12 +244,13 @@
     "lifecycleState": "Escalated",
     "recommendationLabel": "Decision Model (v1) · Score 0.587",
     "recommendedAction": "Reject broad action; use targeted approach",
-    "compositeScore": 0.587,
+    "compositeScore": 0.5869055555555557,
     "confidencePercent": "60.8%",
     "expectedEbitdaUsd": 4430000,
     "downsideEbitdaUsd": -1890000,
-    "escalationTier": "CFO Escalated",
-    "whySummary": "Decision intelligence analysis recommends rejecting the broad terms extension and instead using a targeted approach for the strategic OEM account. Composite governance score 0.587 with 60.8% confidence. Expected EBITDA impact $4.4M; downside exposure -$1.9M. Decision has been escalated for CFO review.",
+    "escalationTier": "Monitor",
+    "comparisonMode": "Single Eligible Alternative",
+    "whySummary": "Decision intelligence analysis recommends rejecting the broad terms extension and instead using a targeted approach for the strategic OEM account. Composite governance score 0.587 with 60.8% confidence. Expected EBITDA impact $4.4M; downside exposure -$1.9M. The model tier is Monitor; the workflow remains escalated pending accountable review.",
     "outcomeStatus": "Projected",
     "outcomeDate": "2026-08-12",
     "outcomeVarianceMRef": -2.85,
@@ -265,7 +277,7 @@
         "label": "Maintain status quo (no action)",
         "source": "Baseline Status Quo",
         "isRecommended": false,
-        "economics": "Not available"
+        "economics": "Deferred No Source"
       }
     ]
   },
@@ -278,12 +290,13 @@
     "lifecycleState": "Execution Pending",
     "recommendationLabel": "Decision Model (v1) · Score 0.649",
     "recommendedAction": "Hold and gather evidence",
-    "compositeScore": 0.649,
+    "compositeScore": 0.6485462962962963,
     "confidencePercent": "59.3%",
     "expectedEbitdaUsd": 13960000,
     "downsideEbitdaUsd": -6710000,
-    "escalationTier": "CFO Review",
-    "whySummary": "Decision intelligence analysis recommends holding and gathering additional evidence before shifting the assembly mix. Composite governance score 0.649 with 59.3% confidence. Expected EBITDA impact $14.0M; downside exposure -$6.7M. CFO review is required due to downside materiality.",
+    "escalationTier": "Critical Escalated",
+    "comparisonMode": "Single Eligible Alternative",
+    "whySummary": "Decision intelligence analysis recommends holding and gathering additional evidence before shifting the assembly mix. Composite governance score 0.649 with 59.3% confidence. Expected EBITDA impact $14.0M; downside exposure -$6.7M. Critical escalation is required due to downside materiality.",
     "outcomeStatus": "Projected",
     "outcomeDate": "2026-08-24",
     "outcomeVarianceMRef": -3.96,
@@ -307,10 +320,16 @@
         "economics": "Governed"
       },
       {
+        "label": "Modified by finance leadership",
+        "source": "Finance Leadership Alternative",
+        "isRecommended": false,
+        "economics": "Deferred No Source"
+      },
+      {
         "label": "Maintain status quo (no action)",
         "source": "Baseline Status Quo",
         "isRecommended": false,
-        "economics": "Not available"
+        "economics": "Deferred No Source"
       }
     ]
   },
@@ -323,11 +342,12 @@
     "lifecycleState": "Approved",
     "recommendationLabel": "Decision Model (v1) · Score 0.507",
     "recommendedAction": "Proceed with segmented rollout",
-    "compositeScore": 0.507,
+    "compositeScore": 0.5067953703703704,
     "confidencePercent": "60.6%",
     "expectedEbitdaUsd": 5580000,
     "downsideEbitdaUsd": -3680000,
     "escalationTier": "Management Review",
+    "comparisonMode": "Single Eligible Alternative",
     "whySummary": "Decision intelligence analysis recommends proceeding with a segmented rollout for the robotics tooling expansion deferral. Composite governance score 0.507 with 60.6% confidence. Expected EBITDA impact $5.6M; downside exposure -$3.7M. Management review required.",
     "outcomeStatus": "Projected",
     "outcomeDate": "2026-09-17",
@@ -355,7 +375,7 @@
         "label": "Maintain status quo (no action)",
         "source": "Baseline Status Quo",
         "isRecommended": false,
-        "economics": "Not available"
+        "economics": "Deferred No Source"
       }
     ]
   }

@@ -72,6 +72,12 @@ export interface FinancialBreakEven {
   status: "Above break-even" | "Below break-even";
 }
 
+export function formatUsdMillions(value: number): string {
+  const sign = value < 0 ? "-" : "";
+  const rounded = Math.floor((Math.abs(value) + 50_000) / 100_000) / 10;
+  return `${sign}$${rounded.toFixed(1)}M`;
+}
+
 const FINANCIAL_METRICS = new Set([
   "Cash Conversion Cycle (days)",
   "Days Sales Outstanding",
@@ -134,7 +140,8 @@ export function assessApprovalAuthority(
   decision: Pick<Decision, "decisionId" | "escalationTier" | "lifecycleState">,
   rows: readonly GovernanceEvent[],
 ): ApprovalAuthorityAssessment {
-  const requiredRole = decision.escalationTier.includes("CFO") ? "Approver CFO" : "Approver Manager";
+  const requiresCfo = decision.escalationTier.includes("CFO") || decision.escalationTier.includes("Critical");
+  const requiredRole = requiresCfo ? "Approver CFO" : "Approver Manager";
   const approval = rows
     .filter((event) => event.decisionId === decision.decisionId && event.eventLabel === "Approve Decision")
     .sort((a, b) => b.seq - a.seq)[0];

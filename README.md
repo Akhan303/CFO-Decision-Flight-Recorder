@@ -31,7 +31,7 @@ npm run build
 npm run preview
 ```
 
-`npm run build` is the release gate. It performs data validation, seven dependency-free finance tests, TypeScript checking, the production bundle, a SHA-256 release manifest, and a compiled-distribution scan.
+`npm run build` is the release gate. It performs data validation, nine dependency-free finance tests, TypeScript checking, the production bundle, a SHA-256 release manifest, and a compiled-distribution scan.
 
 ## Project structure
 

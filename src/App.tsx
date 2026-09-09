@@ -50,6 +50,7 @@ import {
   attainment,
   executiveActionForDecision,
   financialBreakEven,
+  formatUsdMillions,
   measurementState,
   outcomeAssessment,
   recommendationDisposition,
@@ -101,9 +102,7 @@ function contextSnapshot(decision: Decision): ContextMetric[] {
 }
 
 function money(value: number): string {
-  const sign = value < 0 ? "-" : "";
-  const rounded = Math.round((Math.abs(value / 1_000_000) + Number.EPSILON) * 10) / 10;
-  return `${sign}$${rounded.toFixed(1)}M`;
+  return formatUsdMillions(value);
 }
 
 function decimal(value: number): string {
@@ -613,6 +612,11 @@ function RecommendationPanel({ decision }: { decision: Decision }) {
       </div>
 
       <div className="authority-grid">
+        <div>
+          <span>Comparison basis</span>
+          <strong>{decision.comparisonMode}</strong>
+          <small>{decision.comparisonMode === "Fully Comparative" ? "All displayed alternatives have governed economics" : "Only one alternative has eligible governed economics"}</small>
+        </div>
         <div>
           <span>Model-derived recommendation</span>
           <strong>{decision.recommendedAction}</strong>

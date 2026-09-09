@@ -14,13 +14,15 @@ const actuals = load("actuals");
 const financePolicy = load("finance-policy");
 const errors = [];
 const warnings = [];
+const nearlyEqual = (actual, expected, tolerance = 1e-12) => Math.abs(actual - expected) <= tolerance;
 
 const sameValues = (actual, expected) =>
   actual.length === expected.length && actual.every((value, index) => value === expected[index]);
 
-if (semanticContract.contractVersion !== "FDR-PUBLIC-v1") errors.push("Unexpected public semantic contract version");
+if (semanticContract.contractVersion !== "FDR-PUBLIC-v2") errors.push("Unexpected public semantic contract version");
 if (semanticContract.projection.runtimeConnectionToFoundry !== false) errors.push("Public projection contract must prohibit runtime Foundry connectivity");
 if (semanticContract.financeModelVersion !== financePolicy.modelVersion) errors.push("Semantic contract finance model does not match finance policy");
+if (!financePolicy.roundingPolicy.includes("round-half-away-from-zero")) errors.push("Finance policy must define an explicit cross-application rounding rule");
 
 if (aipContract.contractVersion !== "AIP-PROVENANCE-v1") errors.push("Unexpected AIP provenance contract version");
 if (aipContract.currentState.financeModelVersion !== financePolicy.modelVersion) errors.push("AIP provenance contract finance model does not match finance policy");
@@ -53,6 +55,8 @@ const by = (rows, key) => rows.reduce((map, row) => {
 }, new Map());
 
 const decisionIds = new Set();
+const contractByDecision = new Map(semanticContract.decisions.map((decision) => [decision.decisionId, decision]));
+if (contractByDecision.size !== semanticContract.projection.decisionIds.length) errors.push("Authoritative decision contract is incomplete or contains duplicate IDs");
 for (const decision of decisions) {
   if (decisionIds.has(decision.decisionId)) errors.push(`Duplicate decisionId ${decision.decisionId}`);
   decisionIds.add(decision.decisionId);
@@ -64,6 +68,23 @@ for (const decision of decisions) {
   if (statusRealized !== decision.isReleasedByClock) {
     errors.push(`${decision.decisionId}: outcome status conflicts with release flag`);
   }
+  if (statusRealized && ["Approved", "Escalated", "Execution Pending", "Outcome Pending"].includes(decision.lifecycleState)) {
+    errors.push(`${decision.decisionId}: lifecycle state ${decision.lifecycleState} cannot carry a realized outcome`);
+  }
+  const expected = contractByDecision.get(decision.decisionId);
+  if (!expected) {
+    errors.push(`${decision.decisionId}: missing from authoritative Foundry projection contract`);
+    continue;
+  }
+  for (const field of ["lifecycleState", "confidencePercent", "expectedEbitdaUsd", "downsideEbitdaUsd", "escalationTier", "comparisonMode", "outcomeStatus"]) {
+    if (decision[field] !== expected[field]) errors.push(`${decision.decisionId}: ${field} does not match authoritative contract`);
+  }
+  if (!nearlyEqual(decision.compositeScore, expected.compositeScore)) errors.push(`${decision.decisionId}: exact compositeScore does not match authoritative contract`);
+  if (decision.alternatives.length !== expected.alternativeCount) errors.push(`${decision.decisionId}: alternative count does not match authoritative contract`);
+  const governedAlternativeCount = decision.alternatives.filter((alternative) => alternative.economics === "Governed").length;
+  if (governedAlternativeCount !== expected.governedAlternativeCount) errors.push(`${decision.decisionId}: governed alternative count does not match authoritative contract`);
+  if (decision.comparisonMode === "Fully Comparative" && governedAlternativeCount < 2) errors.push(`${decision.decisionId}: fully comparative decisions require at least two governed alternatives`);
+  if (decision.comparisonMode === "Single Eligible Alternative" && governedAlternativeCount !== 1) errors.push(`${decision.decisionId}: single-eligible decisions require exactly one governed alternative`);
 }
 
 const orderedDecisionIds = decisions.map((decision) => decision.decisionId);
@@ -82,11 +103,6 @@ const actualCounts = {
 for (const [name, expected] of Object.entries(contractCounts)) {
   if (actualCounts[name] !== expected) errors.push(`${name} count ${actualCounts[name]} does not match semantic contract ${expected}`);
 }
-
-const realizedIds = decisions.filter((decision) => decision.outcomeStatus === "Realized").map((decision) => decision.decisionId);
-const projectedIds = decisions.filter((decision) => decision.outcomeStatus === "Projected").map((decision) => decision.decisionId);
-if (!sameValues(realizedIds, semanticContract.outcomeClassification.realized)) errors.push("Realized outcome set drifted from semantic contract");
-if (!sameValues(projectedIds, semanticContract.outcomeClassification.projected)) errors.push("Projected outcome set drifted from semantic contract");
 
 const expectedEbitda = decisions.reduce((sum, decision) => sum + decision.expectedEbitdaUsd, 0);
 const downsideEbitda = decisions.reduce((sum, decision) => sum + decision.downsideEbitdaUsd, 0);
@@ -146,6 +162,10 @@ for (const decision of decisions) {
   }
 
   const decisionActuals = actualsByDecision.get(decision.decisionId) ?? [];
+  const expectedDecision = contractByDecision.get(decision.decisionId);
+  if (expectedDecision && (decisionActuals.length === 1) !== expectedDecision.observedActualRequired) {
+    errors.push(`${decision.decisionId}: observed actual presence does not match authoritative evidence policy`);
+  }
   if (decision.isReleasedByClock && decisionActuals.length !== 1) errors.push(`${decision.decisionId}: realized decision must have exactly one observed actual`);
   if (!decision.isReleasedByClock && decisionActuals.length) errors.push(`${decision.decisionId}: unreleased decision cannot expose an observed actual`);
   const actual = decisionActuals[0];
@@ -159,7 +179,7 @@ for (const decision of decisions) {
     if (Math.abs(independentlyCalculatedVariance - referenceVariance) > 1) errors.push(`${decision.decisionId}: observed actual does not reconcile to reference variance`);
   }
 
-  const requiredCfo = decision.escalationTier.includes("CFO");
+  const requiredCfo = decision.escalationTier.includes("CFO") || decision.escalationTier.includes("Critical");
   const approval = [...decisionEvents].reverse().find((event) => event.eventLabel === "Approve Decision");
   if (requiredCfo && approval && !approval.actorRole.includes("CFO")) authorityGapCount += 1;
   const hasDisposition = decisionEvents.some((event) =>

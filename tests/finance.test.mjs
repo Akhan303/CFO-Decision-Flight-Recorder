@@ -5,6 +5,8 @@ import test from "node:test";
 import {
   attainment,
   financialBreakEven,
+  formatUsdMillions,
+  measurementState,
   outcomeAssessment,
   scenarioEconomics,
   summarizeDecisionEconomics,
@@ -84,6 +86,20 @@ test("unreleased decisions remain projections without actual attainment", () => 
   assert.equal(result.basis, "Projection");
   assert.equal(result.value, 1_920_000);
   assert.equal(attainment(item, actuals), "—");
+});
+
+test("outcome learning is gated by observed release state, not the measurement date alone", () => {
+  const item = decision("D-2026-035");
+  assert.equal(item.outcomeStatus, "Projected");
+  assert.equal(item.isReleasedByClock, false);
+  assert.equal(measurementState(item), "Overdue");
+  assert.equal(outcomeAssessment(item, actuals).basis, "Projection");
+});
+
+test("cross-application currency display uses explicit half-away-from-zero rounding", () => {
+  assert.equal(formatUsdMillions(4_050_000), "$4.1M");
+  assert.equal(formatUsdMillions(-4_050_000), "-$4.1M");
+  assert.equal(formatUsdMillions(4_049_999), "$4.0M");
 });
 
 test("portfolio values reconcile to the executive display precision", () => {
