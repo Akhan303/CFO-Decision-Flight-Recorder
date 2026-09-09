@@ -1,9 +1,14 @@
 {
   "contractVersion": "AIP-PROVENANCE-v1",
   "currentState": {
-    "evidenceStatus": "not-yet-evidenced",
-    "generationMode": "deterministic_scoring",
-    "llmBacked": false,
+    "evidenceStatus": "published-function-and-ui-integration-evidenced",
+    "recommendationMode": "deterministic_scoring",
+    "recommendationLlmBacked": false,
+    "evidenceBriefMode": "aip_logic_on_demand",
+    "evidenceBriefLlmBacked": true,
+    "publicRuntimeExecution": false,
+    "logicVersion": "CFO Recommendation Evidence Brief v1",
+    "functionApi": "cfoRecommendationEvidenceBriefV1",
     "publicLabel": "Model-derived recommendation",
     "financeModelVersion": "FIN-SCENARIO-v1"
   },
@@ -11,7 +16,8 @@
     "allowedUntilUpgrade": [
       "Model-derived recommendation",
       "Decision intelligence recommendation",
-      "Precomputed decision-support score"
+      "Precomputed decision-support score",
+      "AIP recommendation evidence brief available in the authenticated Foundry experience"
     ],
     "prohibitedUntilUpgrade": [
       "AI-generated recommendation",

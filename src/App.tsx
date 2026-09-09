@@ -57,6 +57,7 @@ import {
   summarizeDecisionEconomics,
   SIMULATION_DATE
 } from "./domain";
+import "./aip-brief.css";
 
 const decisions = decisionsJson as Decision[];
 const events = eventsJson as GovernanceEvent[];
@@ -648,6 +649,38 @@ function RecommendationPanel({ decision }: { decision: Decision }) {
   );
 }
 
+function FoundryAipBriefPanel() {
+  return (
+    <Panel
+      title="AIP recommendation evidence brief"
+      eyebrow="Governed, on-demand synthesis in the authenticated Foundry experience"
+      className="aip-brief-panel"
+    >
+      <div className="aip-brief-layout">
+        <div>
+          <StatusBadge tone="positive">Published in Foundry</StatusBadge>
+          <h3>Evidence-grounded executive synthesis</h3>
+          <p className="recommendation-copy">
+            The operational application can generate a decision-ready brief from governed alternatives,
+            evidence, assumptions, uncertainties, and run provenance. Deterministic completeness gates run
+            before the model is called, and the brief never authorizes or changes the human decision.
+          </p>
+        </div>
+        <div className="aip-brief-control" aria-label="Foundry-only AIP control">
+          <button type="button" disabled>Available in authenticated Foundry</button>
+          <small>This public showcase is static and never invokes a model.</small>
+        </div>
+      </div>
+      <div className="aip-capability-grid">
+        <div><span>Invocation</span><strong>Explicit, on demand</strong></div>
+        <div><span>Grounding</span><strong>Governed ontology evidence</strong></div>
+        <div><span>Guardrail</span><strong>Completeness gate first</strong></div>
+        <div><span>Authority</span><strong>Human decision remains final</strong></div>
+      </div>
+    </Panel>
+  );
+}
+
 function DecisionRecordPage() {
   return (
     <DecisionView>
@@ -663,6 +696,7 @@ function DecisionRecordPage() {
 
           <JourneyRail decision={decision} />
           <RecommendationPanel decision={decision} />
+          <FoundryAipBriefPanel />
 
           <div className="two-column">
             <Panel title="Decision passport" eyebrow="Governed identity">
@@ -1033,9 +1067,18 @@ function ScenarioPage() {
           <>
             <PageHeading
               eyebrow="Scenario & Sensitivity"
-              title="Governed financial scenarios"
-              subtitle="Illustrative assumptions separated from recorded facts; values are comparable in USD over an explicit decision horizon."
+              title="Illustrative financial scenarios"
+              subtitle="Presentation-only assumptions separated from recorded facts; values are comparable in USD over an explicit decision horizon."
             />
+
+            {decision.decisionId === "D-2026-031" && (
+              <Panel title="Foundry parity disclosure" eyebrow="Authenticated status · DEFERRED_NO_SOURCE">
+                <p className="large-copy">
+                  The authenticated Foundry application has no reproducible scenario linkage for this decision.
+                  The public scenarios below are clearly labeled presentation-only illustrations and are not ontology-backed scenario outputs.
+                </p>
+              </Panel>
+            )}
 
             <div className="kpi-grid six">
               <KpiCard label="Probability-weighted EBITDA" value={money(summary.probabilityWeightedEbitdaUsd)} detail={`${assumption.horizonMonths}-month horizon`} tone="positive" />

@@ -24,8 +24,15 @@ if (semanticContract.financeModelVersion !== financePolicy.modelVersion) errors.
 
 if (aipContract.contractVersion !== "AIP-PROVENANCE-v1") errors.push("Unexpected AIP provenance contract version");
 if (aipContract.currentState.financeModelVersion !== financePolicy.modelVersion) errors.push("AIP provenance contract finance model does not match finance policy");
-if (aipContract.currentState.llmBacked !== false || aipContract.currentState.generationMode !== "deterministic_scoring") {
-  errors.push("AIP provenance contract must remain deterministic until a model-backed run and evaluation evidence exist");
+if (aipContract.currentState.recommendationLlmBacked !== false || aipContract.currentState.recommendationMode !== "deterministic_scoring") {
+  errors.push("Recommendation provenance must remain deterministic; the AIP brief is a separate evidence-synthesis layer");
+}
+if (aipContract.currentState.evidenceBriefLlmBacked !== true || aipContract.currentState.evidenceBriefMode !== "aip_logic_on_demand") {
+  errors.push("Published AIP evidence-brief capability is missing from the provenance contract");
+}
+if (aipContract.currentState.publicRuntimeExecution !== false) errors.push("Public showcase must never execute AIP");
+if (!appSource.includes("AIP recommendation evidence brief") || !appSource.includes("This public showcase is static and never invokes a model")) {
+  errors.push("Public experience does not disclose the Foundry AIP capability and static-runtime boundary");
 }
 if (aipContract.upgradeGate.minimumEvaluationCases < 12) errors.push("AIP upgrade gate must retain at least 12 evaluation cases");
 if (aipContract.requiredPersistedProvenance.length < 15) errors.push("AIP persisted provenance contract is incomplete");

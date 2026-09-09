@@ -12,6 +12,7 @@ A static, read-only React and TypeScript demonstration of governed executive dec
 - Probability-weighted EBITDA, cash conversion, investment, discounting, overlap reserves, and break-even diagnostics
 - Independent observed actuals for released outcomes; unreleased outcomes remain clearly labeled projections
 - Decision replay and a five-frame executive story for each record
+- A transparent mirror of the authenticated Foundry app's governed, on-demand AIP evidence brief capability
 
 ## Trust model
 
@@ -19,7 +20,7 @@ The experience is intentionally honest about incomplete governance evidence. Aut
 
 The finance model is identified as `FIN-SCENARIO-v1`. Calculations use unrounded USD and presentation values are rounded to one decimal million. The NPV figure is an explicitly labeled proxy, not a complete valuation model.
 
-The showcase deliberately uses the label **model-derived recommendation**. It may be upgraded to an AI/AIP-generated claim only after the private Foundry system persists model and prompt provenance, evidence citations, a run identifier, and a passing evaluation-suite result defined in `release/aip-provenance-contract.json`.
+The underlying recommendation remains deliberately labeled **model-derived recommendation**. The private Foundry application now exposes a separately governed, on-demand AIP evidence brief over ontology-backed alternatives and evidence. This static public mirror describes that capability but cannot execute it, display generated output, or imply that AI has human approval authority. The remaining claim and evaluation gates are defined in `release/aip-provenance-contract.json`.
 
 ## Local commands
 

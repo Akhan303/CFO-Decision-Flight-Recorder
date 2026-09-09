@@ -1,0 +1,12 @@
+.aip-brief-panel { border-color: rgba(123, 97, 255, .34); }
+.aip-brief-layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 30px; align-items: center; }
+.aip-brief-layout h3 { margin: 14px 0 7px; color: #fff; font-size: 20px; }
+.aip-brief-control { padding: 16px; background: rgba(7, 16, 31, .58); border: 1px solid var(--border); border-radius: 10px; }
+.aip-brief-control button { width: 100%; min-height: 40px; padding: 0 12px; color: #b9c5d8; background: #23324a; border: 1px solid #3a4c69; border-radius: 7px; font-size: 10px; font-weight: 800; cursor: not-allowed; }
+.aip-brief-control small { display: block; margin-top: 9px; color: var(--muted); font-size: 9px; line-height: 1.5; }
+.aip-capability-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+.aip-capability-grid > div { padding: 12px; background: rgba(7, 16, 31, .46); border: 1px solid var(--border); border-radius: 8px; }
+.aip-capability-grid span, .aip-capability-grid strong { display: block; }
+.aip-capability-grid span { color: var(--muted); font-size: 8px; text-transform: uppercase; letter-spacing: .06em; }
+.aip-capability-grid strong { margin-top: 6px; color: #e8edf5; font-size: 10px; }
+@media (max-width: 900px) { .aip-brief-layout, .aip-capability-grid { grid-template-columns: 1fr; } }

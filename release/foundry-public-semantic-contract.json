@@ -40,13 +40,14 @@
     "scenario assumptions and probabilities",
     "point-in-time evidence classification",
     "governance chronology",
-    "outcome release and measurement state"
+    "outcome release and measurement state",
+    "governed on-demand AIP evidence brief capability and human-authority boundary"
   ],
   "privateOnlyCapabilities": [
     "Ontology writeback",
     "Action Types",
     "governance Functions",
-    "AIP execution and evaluations",
+    "AIP execution, generated outputs, and evaluations",
     "authenticated actor identity",
     "permissions and markings",
     "operational resource identifiers"
