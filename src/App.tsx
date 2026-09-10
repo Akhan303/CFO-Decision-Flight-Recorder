@@ -35,6 +35,9 @@ import contextJson from "./data/context.json";
 import economicsJson from "./data/economics.json";
 import actualsJson from "./data/actuals.json";
 import financePolicyJson from "./data/finance-policy.json";
+import currentScenariosJson from "./data/current-scenarios.json";
+import ScenarioAnalysisPanel from "./components/ScenarioAnalysisPanel";
+import type { ScenarioAnalysisRow } from "./lib/scenarioAnalysis";
 import type {
   ContextMetric,
   Decision,
@@ -67,6 +70,7 @@ const contextRows = contextJson as ContextMetric[];
 const economics = economicsJson as EconomicsAssumption[];
 const actuals = actualsJson as OutcomeActual[];
 const financePolicy = financePolicyJson as FinancePolicy;
+const currentScenarios = currentScenariosJson as ScenarioAnalysisRow[];
 
 const COLORS = ["#43d8ff", "#7b61ff", "#36d399", "#ffb84d", "#ff6b7a", "#77a6ff"];
 
@@ -1008,7 +1012,9 @@ function OutcomesPage() {
               </StatusBadge>
             </header>
             <div className="outcome-values">
-              <div><span>Expected</span><strong>{money(item.expectedEbitdaUsd)}</strong></div>
+              <div><span>Recorded expected EBITDA</span><strong>{money(item.expectedEbitdaUsd)}</strong></div>
+              <div><span>Expected measurement period</span><strong>Not established in source contract</strong></div>
+              <div><span>Observed measurement window</span><strong>{actual ? `${prettyDate(actual.measurementStartDate)} – ${prettyDate(actual.measurementEndDate)}` : "Not observed"}</strong></div>
               <div><span>{outcome.basis}</span><strong>{outcome.value === undefined ? "—" : money(outcome.value)}</strong></div>
               <div><span>Variance · value less expected</span><strong className={(variance ?? 0) >= 0 ? "positive-text" : "negative-text"}>{variance === undefined ? "—" : money(variance)}</strong></div>
               <div><span>Direction</span><strong>{variance === undefined ? "Unverified" : variance >= 0 ? "Favorable" : "Unfavorable"}</strong></div>
@@ -1016,7 +1022,7 @@ function OutcomesPage() {
               <div><span>Measurement status</span><strong>{measurementState(item)}</strong></div>
               <div><span>Measurement date</span><strong>{prettyDate(item.outcomeDate)}</strong></div>
               <div><span>Evidence source</span><strong>{actual ? `${actual.sourceSystem} · ${prettyDate(actual.recordedAt)}` : "Projection reference · not observed"}</strong></div>
-              <div><span>Learning / next gate</span><strong>{item.isReleasedByClock ? "Review variance drivers" : measurementState(item) === "Overdue" ? "Record outcome evidence" : "Measure on scheduled date"}</strong></div>
+              <div><span>Learning / next gate</span><strong>{item.isReleasedByClock ? "Obtain matched-period target and benefit definition" : measurementState(item) === "Overdue" ? "Record outcome evidence" : "Measure on scheduled date"}</strong></div>
             </div>
           </article>
           );
@@ -1029,14 +1035,14 @@ function OutcomesPage() {
             <PageHeading
               eyebrow="Outcomes & Learning"
               title="Measured decision outcomes"
-              subtitle="Expected value compared with measured actuals or clearly labeled projections; variance equals outcome value less expected value."
+              subtitle="Recorded expectations and observed values are shown independently. Actual variance and attainment are withheld until periods and benefit definitions are matched. Projected amounts remain synthetic-reference illustrations."
             />
 
             <div className="kpi-grid four">
               <KpiCard label="Released outcomes" value={realizedItems.length} detail="Realized display records" tone="positive" />
               <KpiCard label="Projected outcomes" value={projectedItems.length} detail={`${overdueItems.length} overdue · ${projectedItems.length - overdueItems.length} scheduled`} tone="info" />
               <KpiCard label="Selected outcome" value={decision.outcomeStatus} detail={decision.decisionId} />
-              <KpiCard label={decision.isReleasedByClock ? "Selected actual variance" : "Selected projected variance"} value={selectedOutcome.variance === undefined ? "—" : money(selectedOutcome.variance)} detail={`${selectedOutcome.basis} · value less expected`} tone="critical" />
+              <KpiCard label={decision.isReleasedByClock ? "Selected actual variance" : "Selected projected variance"} value={selectedOutcome.variance === undefined ? "—" : money(selectedOutcome.variance)} detail={decision.isReleasedByClock ? "Matched-period target not established" : "Synthetic reference · not observed"} tone="critical" />
             </div>
 
             <Panel title="Released outcomes" eyebrow="Observed performance">
@@ -1057,7 +1063,7 @@ function OutcomesPage() {
   );
 }
 
-function ScenarioPage() {
+function HistoricalScenarioPage() {
   return (
     <DecisionView>
       {(decision) => {
@@ -1161,6 +1167,41 @@ function ScenarioPage() {
   );
 }
 
+function ScenarioPage() {
+  return (
+    <DecisionView>
+      {(decision) => {
+        const rows = currentScenarios.filter((row) => row.decisionId === decision.decisionId);
+        return (
+          <>
+            <PageHeading
+              eyebrow="Scenario & Sensitivity"
+              title="Current driver-based analysis"
+              subtitle="A dated, read-only showcase of FDR-DRIVER-v1 outputs built from disclosed synthetic assumptions and authoritative decision links."
+            />
+
+            <ScenarioAnalysisPanel decisionId={decision.decisionId} rows={rows} />
+
+            <Panel title="Public showcase boundary" eyebrow="Read-only · synthetic projection">
+              <p className="large-copy">
+                These current estimates were exported from the governed scenario transformation for public demonstration. They do not revise the original recommendation, represent an observed outcome, or authorize an action. Internal recommendation and alternative identifiers are excluded from this public dataset.
+              </p>
+            </Panel>
+
+            <details className="legacy-scenario-archive">
+              <summary>
+                <span>Historical presentation model at the 20 Aug 2026 snapshot</span>
+                <small>Open the archived score shifts, probabilities and NPV proxy</small>
+              </summary>
+              <HistoricalScenarioPage />
+            </details>
+          </>
+        );
+      }}
+    </DecisionView>
+  );
+}
+
 function StoryPage() {
   return (
     <DecisionView>
@@ -1174,6 +1215,7 @@ function ExecutiveStory({ decision }: { decision: Decision }) {
   const rows = contextSnapshot(decision);
   const decisionEvents = events.filter((event) => event.decisionId === decision.decisionId);
   const selectedScenarios = scenarios.filter((row) => row.decisionId === decision.decisionId);
+  const currentScenarioRows = currentScenarios.filter((row) => row.decisionId === decision.decisionId);
   const authority = assessApprovalAuthority(decision, decisionEvents);
   const disposition = recommendationDisposition(decision.decisionId, decisionEvents);
   const outcome = outcomeFor(decision);
@@ -1248,13 +1290,18 @@ function ExecutiveStory({ decision }: { decision: Decision }) {
       )
     },
     {
-      kicker: "Frame 5 · What We Learned",
+      kicker: "Frame 5 · Current Analysis",
+      title: "A new driver model, clearly separated from the historic record",
+      body: <ScenarioAnalysisPanel decisionId={decision.decisionId} rows={currentScenarioRows} compact />
+    },
+    {
+      kicker: "Frame 6 · What We Learned",
       title: decision.isReleasedByClock ? "Measure value, explain variance, retain the learning" : "Close the governance loop at the next evidence gate",
       body: (
         <>
           <p className="story-quote">
             {decision.isReleasedByClock
-              ? `The accountable record connects the model-derived recommendation, human authorization, decision-time evidence and ${attainment(decision, actuals)} value attainment. The next executive action is to review the ${(outcome.variance ?? 0) >= 0 ? "favorable" : "unfavorable"} variance drivers and retain the learning.`
+              ? `The record connects the model-derived recommendation, recorded human authorization and observed evidence. A matched-period target and common benefit definition are still needed before variance, attainment or realized value conclusions can be drawn.`
               : `The record connects the model-derived recommendation, available human authorization and point-in-time evidence. The outcome is not measured; the next executive action is to ${measurementState(decision) === "Overdue" ? "record overdue outcome evidence" : `measure value on ${prettyDate(decision.outcomeDate)}`}.`}
           </p>
           <div className="story-scenario-row">
@@ -1268,14 +1315,14 @@ function ExecutiveStory({ decision }: { decision: Decision }) {
         </>
       )
     }
-  ], [decision, decisionEvents.length, outcome.variance, rows, selectedScenarios]);
+  ], [currentScenarioRows, decision, decisionEvents.length, outcome.variance, rows, selectedScenarios]);
 
   return (
     <>
       <PageHeading
         eyebrow="Executive Story"
         title="Board-ready decision narrative"
-        subtitle="Five concise frames connecting the decision, evidence, accountability and outcome."
+        subtitle="Six concise frames connecting the decision, evidence, accountability, current analysis and outcome."
       />
 
       <Panel className="story-panel">

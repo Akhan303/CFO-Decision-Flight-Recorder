@@ -71,13 +71,13 @@ test("break-even diagnostic returns zero NPV at the required EBITDA", () => {
   assert.ok(result.requiredCashConversionPct > 100);
 });
 
-test("observed actuals determine realized variance and attainment", () => {
+test("observed values are retained but unmatched targets cannot establish variance or attainment", () => {
   const item = decision("D-2026-031");
   const result = outcomeAssessment(item, actuals);
   assert.equal(result.basis, "Observed actual");
   assert.equal(result.value, 8_390_000);
-  assert.equal(result.variance, -5_300_000);
-  assert.equal(attainment(item, actuals), "61%");
+  assert.equal(result.variance, undefined);
+  assert.equal(attainment(item, actuals), "—");
 });
 
 test("unreleased decisions remain projections without actual attainment", () => {

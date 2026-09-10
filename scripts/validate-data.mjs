@@ -12,9 +12,12 @@ const scenarios = load("scenarios");
 const economics = load("economics");
 const actuals = load("actuals");
 const financePolicy = load("finance-policy");
+const currentScenarios = load("current-scenarios");
 const errors = [];
 const warnings = [];
 const nearlyEqual = (actual, expected, tolerance = 1e-12) => Math.abs(actual - expected) <= tolerance;
+const finiteFinancialResult = (value) =>
+  value && ["ebitdaUsd", "workingCapitalReleaseUsd", "investmentUsd", "netCashUsd"].every((key) => Number.isFinite(value[key]));
 
 const sameValues = (actual, expected) =>
   actual.length === expected.length && actual.every((value, index) => value === expected[index]);
@@ -108,6 +111,36 @@ const expectedEbitda = decisions.reduce((sum, decision) => sum + decision.expect
 const downsideEbitda = decisions.reduce((sum, decision) => sum + decision.downsideEbitdaUsd, 0);
 if (expectedEbitda !== semanticContract.expectedPortfolioTotalsUsd.expectedEbitda) errors.push("Expected EBITDA total drifted from semantic contract");
 if (downsideEbitda !== semanticContract.expectedPortfolioTotalsUsd.downsideEbitda) errors.push("Downside EBITDA total drifted from semantic contract");
+
+const currentScenarioRowsByDecision = by(currentScenarios, "decisionId");
+if (currentScenarios.length !== 24) errors.push(`Current scenario export contains ${currentScenarios.length} rows, expected 24`);
+if (new Set(currentScenarios.map((row) => row.analysisId)).size !== 24) errors.push("Current scenario export contains duplicate public analysis IDs");
+for (const row of currentScenarios) {
+  const allowedKeys = ["analysisId", "decisionId", "scenarioName", "modelVersion", "analysisPayload"];
+  if (Object.keys(row).some((key) => !allowedKeys.includes(key))) errors.push(`${row.analysisId}: public scenario row exposes an unexpected field`);
+  if (!decisionIds.has(row.decisionId)) errors.push(`${row.analysisId}: current scenario refers to an unknown decision`);
+  if (row.modelVersion !== "FDR-DRIVER-v1") errors.push(`${row.analysisId}: unexpected current scenario model version`);
+  let payload;
+  try { payload = JSON.parse(row.analysisPayload); } catch { errors.push(`${row.analysisId}: invalid analysis payload JSON`); continue; }
+  if (payload.modelVersion !== row.modelVersion || payload.schemaVersion !== 1) errors.push(`${row.analysisId}: scenario payload identity mismatch`);
+  if (payload.currency !== "USD" || payload.horizonMonths !== 12) errors.push(`${row.analysisId}: scenario financial basis mismatch`);
+  if (payload.createdAt !== "2026-09-10T00:35:24Z" || payload.periodStart !== "2026-09-10" || payload.periodEnd !== "2027-09-09") errors.push(`${row.analysisId}: scenario creation or horizon dates drifted`);
+  if (payload.probabilities !== null) errors.push(`${row.analysisId}: current model must remain unweighted`);
+  if (!finiteFinancialResult(payload.baseline) || !finiteFinancialResult(payload.result) || !finiteFinancialResult(payload.delta)) errors.push(`${row.analysisId}: scenario financial result is incomplete`);
+  if (!Array.isArray(payload.inputs) || payload.inputs.length === 0 || payload.inputs.some((input) => !input.label || !input.unit || !Number.isFinite(input.value))) errors.push(`${row.analysisId}: scenario inputs are incomplete`);
+  if (!payload.provenance.includes("owner authorization") || !payload.comparisonWarning) errors.push(`${row.analysisId}: scenario disclosures are incomplete`);
+}
+for (const decision of decisions) {
+  const rows = currentScenarioRowsByDecision.get(decision.decisionId) ?? [];
+  const names = rows.map((row) => row.scenarioName).sort();
+  if (!sameValues(names, ["Base", "Downside", "Upside"])) errors.push(`${decision.decisionId}: current scenario set is incomplete`);
+  const base = rows.find((row) => row.scenarioName === "Base");
+  if (base) {
+    const payload = JSON.parse(base.analysisPayload);
+    if (!nearlyEqual(payload.result.ebitdaUsd, payload.baseline.ebitdaUsd, 0.01)) errors.push(`${decision.decisionId}: Base result does not match the disclosed baseline`);
+  }
+}
+if (!appSource.includes("Public showcase boundary") || !appSource.includes("Current driver-based analysis")) errors.push("Public experience does not disclose the current scenario export boundary");
 
 const eventsByDecision = by(events, "decisionId");
 const contextByDecision = by(context, "decisionId");

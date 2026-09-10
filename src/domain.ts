@@ -112,8 +112,10 @@ export function attainment(
   actuals: readonly OutcomeActual[],
 ): string {
   const actual = actuals.find((row) => row.decisionId === decision.decisionId);
-  if (!decision.isReleasedByClock || !actual || !decision.expectedEbitdaUsd) return "—";
-  return `${((actual.actualEbitdaUsd / decision.expectedEbitdaUsd) * 100).toFixed(0)}%`;
+  // The recorded recommendation lacks a matched measurement period and benefit
+  // definition. Scenario horizons cannot supply that missing historical target.
+  if (!decision.isReleasedByClock || !actual) return "—";
+  return "—";
 }
 
 export function outcomeAssessment(
@@ -125,7 +127,6 @@ export function outcomeAssessment(
     if (!actual) return { basis: "Missing actual evidence" };
     return {
       value: actual.actualEbitdaUsd,
-      variance: actual.actualEbitdaUsd - decision.expectedEbitdaUsd,
       basis: "Observed actual",
     };
   }
