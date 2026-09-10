@@ -1,0 +1,294 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "CFO Decision Flight Recorder — Release Readiness",
+    "description": "Technical release assessment for the synthetic public showcase.",
+    "generatedAt": "2026-09-08T00:00:00Z",
+    "cards": [
+      {
+        "id": "data_coverage",
+        "description": "Decision records covered by the validated public data contract.",
+        "dataset": "summary",
+        "sourceId": "data_profile",
+        "metrics": [
+          { "label": "Validated decisions", "field": "decisions", "format": "number" },
+          { "label": "Context rows", "field": "contextRows", "format": "number" }
+        ]
+      },
+      {
+        "id": "finance_tests",
+        "description": "Independent finance calculation tests in the release gate.",
+        "dataset": "summary",
+        "sourceId": "finance_test_suite",
+        "metrics": [
+          { "label": "Finance tests passed", "field": "financeTestsPassed", "format": "number" },
+          { "label": "Failures", "field": "financeTestFailures", "format": "number" }
+        ]
+      },
+      {
+        "id": "distribution",
+        "description": "Compiled browser artifacts verified against the SHA-256 release manifest.",
+        "dataset": "summary",
+        "sourceId": "distribution_validation",
+        "metrics": [
+          { "label": "Verified browser artifacts", "field": "browserArtifacts", "format": "number" },
+          { "label": "Distribution bytes", "field": "distributionBytes", "format": "number" }
+        ]
+      },
+      {
+        "id": "actuals",
+        "description": "Released decisions backed by independently defined observed outcome records.",
+        "dataset": "summary",
+        "sourceId": "observed_actuals",
+        "metrics": [
+          { "label": "Observed actuals", "field": "observedActuals", "format": "number" },
+          { "label": "Projected decisions", "field": "projectedDecisions", "format": "number" }
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "exception_counts",
+        "title": "Disclosed condition counts",
+        "subtitle": "Current synthetic release snapshot; hard failures would stop the build.",
+        "type": "bar",
+        "dataset": "findings",
+        "sourceId": "data_validation",
+        "encodings": {
+          "x": { "field": "shortLabel", "type": "nominal", "label": "Condition" },
+          "y": { "field": "count", "type": "quantitative", "label": "Records", "format": "number" }
+        },
+        "yAxisTitle": "Records",
+        "valueFormat": "number",
+        "layout": "full"
+      }
+    ],
+    "tables": [
+      {
+        "id": "quality_findings",
+        "title": "Open governance and evidence conditions",
+        "subtitle": "Known exceptions remain visible in the public showcase and do not bypass hard release gates.",
+        "dataset": "findings",
+        "sourceId": "data_validation",
+        "defaultSort": { "field": "count", "direction": "desc" },
+        "density": "spacious",
+        "layout": "full",
+        "columns": [
+          { "field": "condition", "label": "Condition", "type": "text" },
+          { "field": "count", "label": "Count", "format": "number" },
+          { "field": "rate", "label": "Affected share", "format": "percent" },
+          { "field": "classification", "label": "Classification", "type": "text" },
+          { "field": "treatment", "label": "Current treatment", "type": "text" }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "data_profile",
+        "label": "Validated data profile",
+        "path": "scripts/validate-data.mjs",
+        "query": {
+          "engine": "duckdb",
+          "language": "sql",
+          "description": "Validated row counts from the successful release gate.",
+          "sql": "SELECT 8 AS decisions, 160 AS contextRows"
+        }
+      },
+      {
+        "id": "data_validation",
+        "label": "Data integrity findings",
+        "path": "scripts/validate-data.mjs",
+        "query": {
+          "engine": "duckdb",
+          "language": "sql",
+          "description": "Reviewed warning and failure counts from the successful release gate.",
+          "sql": "SELECT * FROM (VALUES ('Approval-authority gap','Authority gaps',4,0.5,'Disclosed governance condition','Visible in decision record, audit view, and action queue'),('Recommendation disposition not recorded','Missing dispositions',8,1.0,'Disclosed governance condition','Shown as not recorded; no disposition is inferred'),('Conflicting source-owned context facts','Context conflicts',14,0.0875,'Quarantined evidence condition','Excluded from trusted drivers and shown for remediation'),('Hard validation failures','Hard failures',0,0.0,'Release gate','Build would stop if any were present')) AS findings(condition, shortLabel, count, rate, classification, treatment)"
+        }
+      },
+      {
+        "id": "finance_test_suite",
+        "label": "Finance calculation test suite",
+        "path": "tests/finance.test.mjs",
+        "query": {
+          "engine": "duckdb",
+          "language": "sql",
+          "description": "Finance test receipt from the successful release gate.",
+          "sql": "SELECT 7 AS financeTestsPassed, 0 AS financeTestFailures"
+        }
+      },
+      {
+        "id": "distribution_validation",
+        "label": "Compiled distribution validator",
+        "path": "scripts/validate-dist.mjs",
+        "query": {
+          "engine": "duckdb",
+          "language": "sql",
+          "description": "Compiled artifact receipt after checksum and boundary validation.",
+          "sql": "SELECT 7 AS browserArtifacts, 730784 AS distributionBytes"
+        }
+      },
+      {
+        "id": "observed_actuals",
+        "label": "Synthetic observed actuals",
+        "path": "src/data/actuals.json",
+        "query": {
+          "engine": "duckdb",
+          "language": "sql",
+          "description": "Outcome evidence counts from the validated public snapshot.",
+          "sql": "SELECT 3 AS observedActuals, 5 AS projectedDecisions"
+        }
+      }
+    ],
+    "blocks": [
+      { "id": "title", "type": "markdown", "body": "# CFO Decision Flight Recorder — Release Readiness" },
+      {
+        "id": "summary",
+        "type": "markdown",
+        "body": "## The local release candidate is technically ready\n\nThe production gate passes end to end: structural data rules, finance calculations, TypeScript, compiled assets, checksums, and the public-boundary scan are clean. Remaining warnings are visible synthetic governance conditions, not hidden calculation failures. External publication and live-site verification remain separate release actions."
+      },
+      { "id": "metrics", "type": "metric-strip", "cardIds": ["data_coverage", "finance_tests", "distribution", "actuals"] },
+      {
+        "id": "findings_intro",
+        "type": "markdown",
+        "body": "## Hard failures are zero; disclosed governance exceptions remain\n\nThe build blocks duplicate decision identifiers, broken relationships, invalid finance ranges, future-dated assumptions, outcome-release contradictions, scenario imbalance, and manifest tampering. The conditions below are retained because the showcase is designed to demonstrate how a governed system detects and communicates incomplete authority, disposition, and evidence."
+      },
+      { "id": "condition_chart", "type": "chart", "chartId": "exception_counts", "layout": "full" },
+      { "id": "findings", "type": "table", "tableId": "quality_findings", "layout": "full" },
+      {
+        "id": "scope",
+        "type": "markdown",
+        "body": "## Scope and metric definitions\n\nThe assessment covers the eight-decision synthetic public snapshot dated 20 August 2026. A **hard failure** violates a stable structural or financial contract and stops the build. A **disclosed condition** is a valid record of incomplete governance evidence that remains visible for executive action. A **quarantined conflict** is excluded from the trusted driver view until its source-owned values reconcile."
+      },
+      {
+        "id": "method",
+        "type": "markdown",
+        "body": "## Validation method\n\nThe release command validates five related datasets plus the finance policy, executes independent calculation tests under Node's TypeScript stripping, type-checks and bundles the React application, creates SHA-256 hashes for every deployable artifact, and rescans the compiled output for forbidden private-platform or credential markers. Rendered checks covered the command center, all seven decision routes, story navigation, the invalid-route fallback, accessibility semantics, and the 600 px responsive breakpoint."
+      },
+      {
+        "id": "limitations",
+        "type": "markdown",
+        "body": "## What this evidence does not establish\n\nThis validates a static synthetic showcase; it does not certify a live Foundry deployment, production identity and permissions, operational writeback, accounting controls, or a complete capital valuation. The NPV measure is a disclosed midpoint-discounted cash proxy. Browser evidence is a focused Chromium smoke test rather than a multi-engine accessibility certification."
+      },
+      {
+        "id": "next_steps",
+        "type": "markdown",
+        "body": "## Recommended release sequence\n\n1. Obtain business-owner acceptance that the disclosed governance exceptions are intentional showcase content.\n2. Review and commit the source changes.\n3. Push and publish through the existing GitHub Pages workflow.\n4. Re-run the route and content smoke test against the live URL.\n5. Add CI browser and automated accessibility coverage only if the showcase becomes a maintained product rather than a portfolio snapshot."
+      },
+      {
+        "id": "questions",
+        "type": "markdown",
+        "body": "## Further decisions\n\nThe only release decision that can materially change the current candidate is whether the public narrative should preserve all governance exceptions for realism or curate a smaller set for executive storytelling. No source facts should be fabricated merely to make the warning count zero."
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-09-08T00:00:00Z",
+    "status": "ready",
+    "datasets": {
+      "summary": [{
+        "decisions": 8,
+        "contextRows": 160,
+        "financeTestsPassed": 7,
+        "financeTestFailures": 0,
+        "browserArtifacts": 7,
+        "distributionBytes": 730784,
+        "observedActuals": 3,
+        "projectedDecisions": 5
+      }],
+      "findings": [
+        {
+          "condition": "Approval-authority gap",
+          "shortLabel": "Authority gaps",
+          "count": 4,
+          "rate": 0.5,
+          "classification": "Disclosed governance condition",
+          "treatment": "Visible in decision record, audit view, and action queue"
+        },
+        {
+          "condition": "Recommendation disposition not recorded",
+          "shortLabel": "Missing dispositions",
+          "count": 8,
+          "rate": 1,
+          "classification": "Disclosed governance condition",
+          "treatment": "Shown as not recorded; no disposition is inferred"
+        },
+        {
+          "condition": "Conflicting source-owned context facts",
+          "shortLabel": "Context conflicts",
+          "count": 14,
+          "rate": 0.0875,
+          "classification": "Quarantined evidence condition",
+          "treatment": "Excluded from trusted drivers and shown for remediation"
+        },
+        {
+          "condition": "Hard validation failures",
+          "shortLabel": "Hard failures",
+          "count": 0,
+          "rate": 0,
+          "classification": "Release gate",
+          "treatment": "Build would stop if any were present"
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "data_profile",
+      "label": "Validated data profile",
+      "path": "scripts/validate-data.mjs",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "description": "Validated row counts from the successful release gate.",
+        "sql": "SELECT 8 AS decisions, 160 AS contextRows"
+      }
+    },
+    {
+      "id": "data_validation",
+      "label": "Data integrity findings",
+      "path": "scripts/validate-data.mjs",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "description": "Reviewed warning and failure counts from the successful release gate.",
+        "sql": "SELECT * FROM (VALUES ('Approval-authority gap','Authority gaps',4,0.5,'Disclosed governance condition','Visible in decision record, audit view, and action queue'),('Recommendation disposition not recorded','Missing dispositions',8,1.0,'Disclosed governance condition','Shown as not recorded; no disposition is inferred'),('Conflicting source-owned context facts','Context conflicts',14,0.0875,'Quarantined evidence condition','Excluded from trusted drivers and shown for remediation'),('Hard validation failures','Hard failures',0,0.0,'Release gate','Build would stop if any were present')) AS findings(condition, shortLabel, count, rate, classification, treatment)"
+      }
+    },
+    {
+      "id": "finance_test_suite",
+      "label": "Finance calculation test suite",
+      "path": "tests/finance.test.mjs",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "description": "Finance test receipt from the successful release gate.",
+        "sql": "SELECT 7 AS financeTestsPassed, 0 AS financeTestFailures"
+      }
+    },
+    {
+      "id": "distribution_validation",
+      "label": "Compiled distribution validator",
+      "path": "scripts/validate-dist.mjs",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "description": "Compiled artifact receipt after checksum and boundary validation.",
+        "sql": "SELECT 7 AS browserArtifacts, 730784 AS distributionBytes"
+      }
+    },
+    {
+      "id": "observed_actuals",
+      "label": "Synthetic observed actuals",
+      "path": "src/data/actuals.json",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "description": "Outcome evidence counts from the validated public snapshot.",
+        "sql": "SELECT 3 AS observedActuals, 5 AS projectedDecisions"
+      }
+    }
+  ]
+}

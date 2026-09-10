@@ -1,0 +1,5 @@
+[
+  {"decisionId":"D-2026-031","actualEbitdaUsd":8390000,"currency":"USD","measurementStartDate":"2026-01-21","measurementEndDate":"2026-05-20","recordedAt":"2026-05-20","sourceSystem":"CFO Performance Monthly","evidenceStatus":"Observed"},
+  {"decisionId":"D-2026-033","actualEbitdaUsd":2760000,"currency":"USD","measurementStartDate":"2026-02-14","measurementEndDate":"2026-06-13","recordedAt":"2026-06-13","sourceSystem":"CFO Performance Monthly","evidenceStatus":"Observed"},
+  {"decisionId":"D-2026-034","actualEbitdaUsd":2700000,"currency":"USD","measurementStartDate":"2026-02-26","measurementEndDate":"2026-06-25","recordedAt":"2026-06-25","sourceSystem":"CFO Performance Monthly","evidenceStatus":"Observed"}
+]

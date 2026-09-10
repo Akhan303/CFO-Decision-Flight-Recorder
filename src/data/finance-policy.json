@@ -1,0 +1,11 @@
+{
+  "modelVersion": "FIN-SCENARIO-v1",
+  "owner": "CFO Decision Intelligence",
+  "probabilityMethod": "Mutually exclusive base, upside and downside cases; probabilities must total 100% per decision",
+  "ebitdaFormula": "Sum of scenario EBITDA impact multiplied by scenario probability",
+  "npvProxyFormula": "Probability-weighted midpoint-discounted EBITDA multiplied by cash conversion, less upfront investment",
+  "discountTiming": "Operating cash is approximated at the midpoint of the benefit horizon",
+  "overlapTreatment": "Decision-level planning reserve applied after probability weighting; not a consolidated forecast elimination",
+  "roundingPolicy": "Calculations use unrounded integer USD; presentation rounds to one decimal million using round-half-away-from-zero",
+  "lastValidated": "2026-09-09"
+}

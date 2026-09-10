@@ -1,0 +1,44 @@
+{
+  "contractVersion": "FDR-PUBLIC-v2",
+  "snapshotDate": "2026-08-20",
+  "certifiedAtUtc": "2026-09-09T00:00:00Z",
+  "authoritativeSystem": "Private Palantir Foundry CFO Decision Flight Recorder",
+  "evidencePolicy": {
+    "realizedDefinition": "Observed outcome evidence exists, is linked to the decision, and is released for governed learning",
+    "syntheticReferenceTreatment": "Projection only; a passed measurement date never promotes synthetic reference variance to realized learning",
+    "roundingPolicy": "Exact integer USD is authoritative; presentation uses round-half-away-from-zero to one decimal million"
+  },
+  "projection": {
+    "purpose": "Approved synthetic, read-only public portfolio subset",
+    "runtimeConnectionToFoundry": false,
+    "decisionIds": ["D-2026-031", "D-2026-032", "D-2026-033", "D-2026-034", "D-2026-035", "D-2026-038", "D-2026-039", "D-2026-041"]
+  },
+  "financeModelVersion": "FIN-SCENARIO-v1",
+  "expectedCounts": {"decisions": 8, "events": 61, "context": 160, "scenarios": 24, "actuals": 3},
+  "expectedPortfolioTotalsUsd": {"expectedEbitda": 62040000, "downsideEbitda": -28400000},
+  "decisions": [
+    {"decisionId": "D-2026-031", "lifecycleState": "Closed", "compositeScore": 0.7826722222222222, "confidencePercent": "51.5%", "expectedEbitdaUsd": 13690000, "downsideEbitdaUsd": -1280000, "escalationTier": "CFO Review", "comparisonMode": "Fully Comparative", "alternativeCount": 2, "governedAlternativeCount": 2, "outcomeStatus": "Realized", "observedActualRequired": true},
+    {"decisionId": "D-2026-032", "lifecycleState": "Executed", "compositeScore": 0.570988888888889, "confidencePercent": "47.7%", "expectedEbitdaUsd": 6820000, "downsideEbitdaUsd": -1200000, "escalationTier": "Management Review", "comparisonMode": "Single Eligible Alternative", "alternativeCount": 2, "governedAlternativeCount": 1, "outcomeStatus": "Projected", "observedActualRequired": false},
+    {"decisionId": "D-2026-033", "lifecycleState": "Closed", "compositeScore": 0.4607888888888889, "confidencePercent": "49.6%", "expectedEbitdaUsd": 4050000, "downsideEbitdaUsd": -6030000, "escalationTier": "Critical Escalated", "comparisonMode": "Single Eligible Alternative", "alternativeCount": 3, "governedAlternativeCount": 1, "outcomeStatus": "Realized", "observedActualRequired": true},
+    {"decisionId": "D-2026-034", "lifecycleState": "Closed", "compositeScore": 0.6241666666666668, "confidencePercent": "60.9%", "expectedEbitdaUsd": 8090000, "downsideEbitdaUsd": -2160000, "escalationTier": "Management Review", "comparisonMode": "Single Eligible Alternative", "alternativeCount": 2, "governedAlternativeCount": 1, "outcomeStatus": "Realized", "observedActualRequired": true},
+    {"decisionId": "D-2026-035", "lifecycleState": "Outcome Pending", "compositeScore": 0.48536190476190477, "confidencePercent": "66.7%", "expectedEbitdaUsd": 5420000, "downsideEbitdaUsd": -5450000, "escalationTier": "CFO Review", "comparisonMode": "Single Eligible Alternative", "alternativeCount": 2, "governedAlternativeCount": 1, "outcomeStatus": "Projected", "observedActualRequired": false},
+    {"decisionId": "D-2026-038", "lifecycleState": "Escalated", "compositeScore": 0.5869055555555557, "confidencePercent": "60.8%", "expectedEbitdaUsd": 4430000, "downsideEbitdaUsd": -1890000, "escalationTier": "Monitor", "comparisonMode": "Single Eligible Alternative", "alternativeCount": 2, "governedAlternativeCount": 1, "outcomeStatus": "Projected", "observedActualRequired": false},
+    {"decisionId": "D-2026-039", "lifecycleState": "Execution Pending", "compositeScore": 0.6485462962962963, "confidencePercent": "59.3%", "expectedEbitdaUsd": 13960000, "downsideEbitdaUsd": -6710000, "escalationTier": "Critical Escalated", "comparisonMode": "Single Eligible Alternative", "alternativeCount": 3, "governedAlternativeCount": 1, "outcomeStatus": "Projected", "observedActualRequired": false},
+    {"decisionId": "D-2026-041", "lifecycleState": "Approved", "compositeScore": 0.5067953703703704, "confidencePercent": "60.6%", "expectedEbitdaUsd": 5580000, "downsideEbitdaUsd": -3680000, "escalationTier": "Management Review", "comparisonMode": "Single Eligible Alternative", "alternativeCount": 2, "governedAlternativeCount": 1, "outcomeStatus": "Projected", "observedActualRequired": false}
+  ],
+  "requiredSemanticParity": [
+    "decision identity and lifecycle state",
+    "exact score, confidence, expected EBITDA, and downside EBITDA",
+    "escalation tier and accountable approval authority",
+    "fully comparative versus single-eligible recommendation semantics",
+    "observed-evidence-gated outcome classification",
+    "governance chronology",
+    "governed on-demand AIP capability and human-authority boundary"
+  ],
+  "privateOnlyCapabilities": ["Ontology writeback", "Action Types", "governance Functions", "AIP execution, generated outputs, and evaluations", "authenticated actor identity", "permissions and markings", "operational resource identifiers"],
+  "validationLimitations": {
+    "liveMultiPrincipalUat": "Conditional — enrollment has one authenticated user",
+    "simulatedPrincipalTests": "Required for positive and negative separation-of-duties paths",
+    "aipRunPersistence": "Invocation and returned provenance validated; persistence after reload not certified"
+  }
+}

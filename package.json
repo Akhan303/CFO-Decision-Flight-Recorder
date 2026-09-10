@@ -1,0 +1,28 @@
+{
+  "name": "cfo-decision-flight-recorder-public-showcase",
+  "private": true,
+  "version": "1.0.8",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "validate:data": "node scripts/validate-data.mjs",
+    "validate:dist": "node scripts/validate-dist.mjs",
+    "build:manifest": "node scripts/generate-release-manifest.mjs",
+    "test:finance": "node --experimental-strip-types --test tests/finance.test.mjs",
+    "build": "npm run validate:data && npm run test:finance && tsc && vite build && npm run build:manifest && npm run validate:dist",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "6.28.0",
+    "recharts": "2.13.3"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "4.3.4",
+    "typescript": "5.6.3",
+    "vite": "5.4.11"
+  }
+}

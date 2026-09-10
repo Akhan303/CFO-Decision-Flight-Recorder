@@ -1,0 +1,64 @@
+{
+  "contractVersion": "AIP-PROVENANCE-v1",
+  "currentState": {
+    "evidenceStatus": "published-function-and-ui-integration-evidenced",
+    "recommendationMode": "deterministic_scoring",
+    "recommendationLlmBacked": false,
+    "evidenceBriefMode": "aip_logic_on_demand",
+    "evidenceBriefLlmBacked": true,
+    "publicRuntimeExecution": false,
+    "logicVersion": "CFO Recommendation Evidence Brief v1",
+    "functionApi": "cfoRecommendationEvidenceBriefV1",
+    "publicLabel": "Model-derived recommendation",
+    "financeModelVersion": "FIN-SCENARIO-v1"
+  },
+  "claimPolicy": {
+    "allowedUntilUpgrade": [
+      "Model-derived recommendation",
+      "Decision intelligence recommendation",
+      "Precomputed decision-support score",
+      "AIP recommendation evidence brief available in the authenticated Foundry experience"
+    ],
+    "prohibitedUntilUpgrade": [
+      "AI-generated recommendation",
+      "LLM-generated recommendation",
+      "AIP-generated recommendation"
+    ]
+  },
+  "requiredPersistedProvenance": [
+    "recommendationVersionId",
+    "decisionId",
+    "logicVersion",
+    "modelIdentifier",
+    "modelVersion",
+    "promptTemplateVersion",
+    "runId",
+    "generatedAt",
+    "evidenceSnapshotIds",
+    "citations",
+    "confidence",
+    "uncertainties",
+    "outputHash",
+    "evaluationSuiteVersion",
+    "evaluationStatus"
+  ],
+  "upgradeGate": {
+    "minimumEvaluationCases": 12,
+    "singleBatchFirstRelease": true,
+    "requiredCaseFamilies": [
+      "grounded recommendation",
+      "financial numerical fidelity",
+      "citation completeness",
+      "insufficient evidence abstention",
+      "conflicting evidence handling",
+      "human authority boundary"
+    ],
+    "requiredChecks": [
+      "all persisted provenance fields populated",
+      "no unsupported financial facts",
+      "every material claim cites an allowed evidence snapshot",
+      "insufficient evidence produces abstention or explicit uncertainty",
+      "recommendation never performs or impersonates human approval"
+    ]
+  }
+}
