@@ -139,8 +139,8 @@ function groupCount(values: string[]) {
   ).map(([name, value]) => ({ name, value }));
 }
 
-function selectedDecision(id?: string): Decision {
-  return decisions.find((decision) => decision.decisionId === id) ?? decisions[0];
+function selectedDecision(id?: string): Decision | undefined {
+  return decisions.find((decision) => decision.decisionId === id);
 }
 
 function StatusBadge({
@@ -562,6 +562,10 @@ function DecisionHeader({ decision }: { decision: Decision }) {
 function DecisionView({ children }: { children: (decision: Decision) => ReactNode }) {
   const { decisionId } = useParams();
   const decision = selectedDecision(decisionId);
+
+  if (!decision) {
+    return <NotFound />;
+  }
 
   return (
     <>

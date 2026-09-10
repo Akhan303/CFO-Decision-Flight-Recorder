@@ -64,6 +64,7 @@ export default function ScenarioAnalysisPanel({
   }
 
   const base = scenarios[0].payload;
+  const inventoryCashPolicyProvisional = decisionId === 'D-2026-032';
   const chart = scenarios.map((scenario) => ({
     name: scenario.name,
     'Incremental EBITDA': scenario.payload.result.ebitdaUsd / 1e6,
@@ -99,6 +100,8 @@ export default function ScenarioAnalysisPanel({
         })}
       </div>
 
+      {inventoryCashPolicyProvisional && <div className="scenario-policy-warning" role="note"><span>!</span><p><strong>Inventory cash treatment is provisional; owner accounting policy has not yet been confirmed.</strong> The displayed cash proxy preserves FDR-DRIVER-v1 and depends on whether obsolescence is noncash, whether replacement purchases occur, whether working capital is gross or net of write-downs, and when those cash movements occur.</p></div>}
+
       <div className="scenario-disclosure"><span className="scenario-disclosure-icon">i</span><p>{base.comparisonWarning} Recorded recommendation EBITDA: <strong>{base.recordedExpectedEbitdaUsd === null ? 'not supplied' : money(base.recordedExpectedEbitdaUsd)}</strong>. A matched measurement period has not been established.</p></div>
 
       {compact ? <p className="scenario-compact-note">The Scenarios view contains all three cases, driver changes, financial deltas, sensitivities, formulas and provenance. These current estimates remain separate from measured outcome evidence.</p> : <>
@@ -126,7 +129,7 @@ export default function ScenarioAnalysisPanel({
           <div className="scenario-table-scroll"><table className="scenario-table assumptions"><thead><tr><th>Driver</th><th>Unit</th>{scenarios.map((scenario) => <th key={scenario.id}>{scenario.name}</th>)}</tr></thead><tbody>{base.inputs.map((input) => <tr key={input.key}><th>{input.label}</th><td>{input.unit === 'fraction' ? '%' : input.unit}</td>{scenarios.map((scenario) => { const item = scenario.payload.inputs.find((candidate) => candidate.key === input.key); return <td key={scenario.id}>{item ? driverValue(item.value, item.unit) : 'Not supplied'}</td>; })}</tr>)}</tbody></table></div>
         </div>
 
-        <details className="scenario-methodology"><summary><span>Model methodology and provenance</span><small>Formula, cash convention and evidence boundary</small></summary><div><h4>Operating formula</h4><p>{base.formula}</p><h4>Cash convention</h4><p>{base.cashFormula}</p><h4>Input provenance</h4><p>{base.provenance}</p><p>Scenario results describe the modeled alternative in this new period. Historical recommendation, approval and outcome records are preserved. No probability or automatic decision authority is asserted.</p></div></details>
+        <details className="scenario-methodology"><summary><span>Model methodology and provenance</span><small>Formula, cash convention and evidence boundary</small></summary><div><h4>Operating formula</h4><p>{base.formula}</p><h4>Cash convention</h4><p>{base.cashFormula}</p>{inventoryCashPolicyProvisional && <><h4>Inventory cash-policy status</h4><p><strong>Provisional.</strong> Owner policy has not confirmed the cash/noncash treatment of obsolescence, replacement purchasing, gross-versus-net working capital, or timing. Values remain the unchanged FDR-DRIVER-v1 illustration until a versioned policy decision is approved.</p></>}<h4>Input provenance</h4><p>{base.provenance}</p><p>Scenario results describe the modeled alternative in this new period. Historical recommendation, approval and outcome records are preserved. No probability or automatic decision authority is asserted.</p></div></details>
       </>}
     </section>
   );
