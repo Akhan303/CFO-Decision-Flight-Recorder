@@ -564,7 +564,7 @@ function DecisionView({ children }: { children: (decision: Decision) => ReactNod
   const decision = selectedDecision(decisionId);
 
   if (!decision) {
-    return <NotFound />;
+    return <NotFound title="Decision not found" />;
   }
 
   return (
@@ -1363,9 +1363,9 @@ function ExecutiveStory({ decision }: { decision: Decision }) {
   );
 }
 
-function NotFound() {
+function NotFound({ title = "Page not found" }: { title?: string }) {
   return (
-    <Panel title="Page not found">
+    <Panel title={title}>
       <p className="large-copy">Return to the CFO Command Center to select a decision.</p>
       <NavLink className="primary-button inline-button" to="/command-center">
         Return to Command Center
