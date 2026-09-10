@@ -695,7 +695,7 @@ function DecisionRecordPage() {
       {(decision) => (
         <>
           <div className="kpi-grid five">
-            <KpiCard label="Composite score" value={decimal(decision.compositeScore)} detail={decision.recommendationLabel} />
+            <KpiCard label="Model-derived score" value={decimal(decision.compositeScore)} detail={decision.recommendationLabel} />
             <KpiCard label="Confidence" value={decision.confidencePercent} detail="Precomputed display value" />
             <KpiCard label="Expected EBITDA" value={money(decision.expectedEbitdaUsd)} detail="Expected impact" tone="positive" />
             <KpiCard label="Downside exposure" value={money(decision.downsideEbitdaUsd)} detail="Downside case" tone="critical" />
@@ -751,6 +751,10 @@ function ContextPage() {
               title="Point-in-time evidence snapshot"
               subtitle="The evidence visible at the time the executive decision was considered."
             />
+
+            <div className="integrity-callout" role="note">
+              Public context is a separate synthetic illustration for the read-only showcase. It is not a row-for-row sanitized export of the authenticated Foundry context, so values can differ between the two experiences.
+            </div>
 
             <div className="kpi-grid four">
               <KpiCard label="Trusted drivers" value={rows.length} detail={`${uniqueMetrics} unambiguous metrics`} />
@@ -1214,7 +1218,6 @@ function ExecutiveStory({ decision }: { decision: Decision }) {
   const [frame, setFrame] = useState(0);
   const rows = contextSnapshot(decision);
   const decisionEvents = events.filter((event) => event.decisionId === decision.decisionId);
-  const selectedScenarios = scenarios.filter((row) => row.decisionId === decision.decisionId);
   const currentScenarioRows = currentScenarios.filter((row) => row.decisionId === decision.decisionId);
   const authority = assessApprovalAuthority(decision, decisionEvents);
   const disposition = recommendationDisposition(decision.decisionId, decisionEvents);
@@ -1304,18 +1307,13 @@ function ExecutiveStory({ decision }: { decision: Decision }) {
               ? `The record connects the model-derived recommendation, recorded human authorization and observed evidence. A matched-period target and common benefit definition are still needed before variance, attainment or realized value conclusions can be drawn.`
               : `The record connects the model-derived recommendation, available human authorization and point-in-time evidence. The outcome is not measured; the next executive action is to ${measurementState(decision) === "Overdue" ? "record overdue outcome evidence" : `measure value on ${prettyDate(decision.outcomeDate)}`}.`}
           </p>
-          <div className="story-scenario-row">
-            {selectedScenarios.map((scenario) => (
-              <div key={scenario.scenarioName}>
-                <span>{scenario.scenarioName}</span>
-                <strong>{decimal(scenario.scenarioScore)}</strong>
-              </div>
-            ))}
+          <div className="integrity-callout" role="note">
+            Historical FIN-SCENARIO-v1 score stress tests remain in the archived Scenario section at the 20 Aug 2026 snapshot. Those ranking diagnostics are not probabilities, current financial results or observed outcomes.
           </div>
         </>
       )
     }
-  ], [currentScenarioRows, decision, decisionEvents.length, outcome.variance, rows, selectedScenarios]);
+  ], [currentScenarioRows, decision, decisionEvents.length, outcome.variance, rows]);
 
   return (
     <>
